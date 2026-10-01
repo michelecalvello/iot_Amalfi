@@ -1,5 +1,7 @@
 # iot_Amalfi – Portale dei dati di monitoraggio
 
+**Portale:** https://michelecalvello.github.io/iot_Amalfi/
+
 Dati di monitoraggio idrologico (pioggia, contenuto d'acqua e potenziale matriciale nel suolo, livello idrometrico) ad Amalfi (SA). Università di Salerno – Dipartimento di Ingegneria Civile.
 
 Riferimento temporale unico: **UTC+1** (ora solare, senza ora legale).
@@ -40,3 +42,15 @@ data/qc_log.csv         elenco dei valori segnalati e regola applicata
 - Stazione S3 (sensori METER, idrometro Arantec) e pluviometro Arantec: Università di Salerno.
 - Pluviometri 21753 (Amalfi) e 51667 (Amalfi-Pogerola): Centro Funzionale Multirischi
   della Protezione Civile – Regione Campania.
+
+## Portale web
+
+`index.html` + `assets/` — pagina statica (GitHub Pages), nessun backend.
+- Selezione delle serie per stazione e grandezza, mappa delle stazioni, metadati (ⓘ).
+- Grafico Plotly con asse del tempo unico: modalità **Pannelli** (un pannello per grandezza)
+  o **Assi multipli** (un solo grafico, un asse Y per grandezza, pioggia come ietogramma rovesciato).
+- Risoluzione automatica in base all'intervallo: giornaliera (> 90 giorni), oraria (> 4 giorni),
+  dato originale (≤ 4 giorni); oppure scelta manuale.
+- Statistiche e esportazione CSV dell'intervallo visibile; lo stato della vista è nell'URL (condivisibile).
+
+Per provarlo in locale: `python -m http.server` nella radice del repo e aprire http://localhost:8000.
