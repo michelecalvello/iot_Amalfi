@@ -49,6 +49,8 @@ data/qc_log.csv         elenco dei valori segnalati e regola applicata
 - Selezione delle serie per stazione e grandezza, mappa delle stazioni, metadati (ⓘ).
 - Grafico Plotly con asse del tempo unico: modalità **Pannelli** (un pannello per grandezza)
   o **Assi multipli** (un solo grafico, un asse Y per grandezza, pioggia come ietogramma rovesciato).
+- Opzione *Piogge in pannelli separati*: un pannello per pluviometro, con scala comune.
+- Il riquadro del grafico si ridimensiona trascinando l'angolo in basso a destra: i pannelli scalano di conseguenza.
 - Risoluzione automatica in base all'intervallo: giornaliera (> 90 giorni), oraria (> 4 giorni),
   dato originale (≤ 4 giorni); oppure scelta manuale.
 - Statistiche e esportazione CSV dell'intervallo visibile; lo stato della vista è nell'URL (condivisibile).

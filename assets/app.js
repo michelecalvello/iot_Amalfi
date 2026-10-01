@@ -24,7 +24,7 @@
   // ---------------------------------------------------------------- stato
   const state = {
     selected: [], colors: {}, from: null, to: null,
-    res: "auto", mode: "panels", logSuction: false,
+    res: "auto", mode: "panels", logSuction: false, splitRain: false,
     fStation: "", fVariable: "",
   };
   let catalog, seriesById = {}, stationById = {};
@@ -135,15 +135,36 @@
   const fmtNum = (x, variable) => x == null || !isFinite(x) ? "–"
     : variable === "vwc" ? x.toFixed(3) : Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(1);
 
+  // ---------------------------------------------------------------- gruppi (pannelli / assi)
+  // Un gruppo = un asse Y. Di norma uno per grandezza; in modalità Pannelli, con
+  // "Piogge in pannelli separati", ogni serie di pioggia ha il proprio pannello.
+  function makeGroups() {
+    const out = [];
+    for (const v of VAR_ORDER) {
+      const sids = state.selected.filter((x) => seriesById[x].variable === v);
+      if (!sids.length) continue;
+      if (v === "rain" && state.splitRain && state.mode === "panels" && sids.length > 1) {
+        sids.forEach((sid) => out.push({
+          key: `rain:${sid}`, variable: v, sids: [sid],
+          title: `Pioggia · ${stationById[seriesById[sid].station_id].name.replace(/^Amalfi\s*–\s*/, "")}`,
+        }));
+      } else {
+        out.push({ key: v, variable: v, sids, title: panelTitle(v) });
+      }
+    }
+    return out;
+  }
+
   // ---------------------------------------------------------------- tracce
   function buildTraces(groups, axisOf) {
     const traces = [];
-    for (const variable of groups) {
-      for (const sid of state.selected.filter((x) => seriesById[x].variable === variable)) {
+    for (const g of groups) {
+      const variable = g.variable;
+      for (const sid of g.sids) {
         const s = seriesById[sid], d = loaded[sid];
         if (!d) continue;
         const color = colorOf(sid);
-        const ax = axisOf[variable];
+        const ax = axisOf[g.key];
         const transform = variable === "psi" && state.logSuction
           ? (v) => (v != null && v < 0 ? -v : null) : (v) => v;
         const unit = s.unit.replace("m3/m3", "m³/m³");
@@ -222,17 +243,18 @@
 
     if (state.mode === "panels") {
       const gap = 0.035;
-      const w = groups.map((g) => PANEL_WEIGHT[g] || 1);
+      const w = groups.map((g) => PANEL_WEIGHT[g.variable] || 1);
       const total = w.reduce((a, b) => a + b, 0);
       const usable = 1 - gap * (groups.length - 1);
-      let top = 1;
-      groups.forEach((g, i) => {
+      let top = 1, firstRain = null;
+      groups.forEach((grp, i) => {
+        const g = grp.variable;
         const h = usable * w[i] / total;
         const id = i === 0 ? "y" : `y${i + 1}`;
         const key = i === 0 ? "yaxis" : `yaxis${i + 1}`;
-        axisOf[g] = id;
+        axisOf[grp.key] = id;
         layout.annotations.push({
-          text: panelTitle(g), xref: "paper", yref: "paper", x: 0, y: top, xanchor: "left", yanchor: "top",
+          text: grp.title, xref: "paper", yref: "paper", x: 0, y: top, xanchor: "left", yanchor: "top",
           showarrow: false, font: { size: 12, color: css("--text-2") }, bgcolor: css("--surface"), borderpad: 2,
         });
         layout[key] = {
@@ -242,25 +264,29 @@
           ...(g === "psi" && state.logSuction ? { dtick: 1 } : {}),
           rangemode: g === "rain" ? "tozero" : "normal",
         };
+        // pannelli di pioggia separati: stessa scala, per un confronto corretto
+        if (g === "rain") { if (firstRain) layout[key].matches = firstRain; else firstRain = id; }
         top -= h + gap;
       });
       layout.xaxis.anchor = groups.length > 1 ? `y${groups.length}` : "y";
     } else {
       // asse multipli: pioggia a destra come ietogramma rovesciato, le altre alternate
-      const others = groups.filter((g) => g !== "rain");
+      const others = groups.filter((g) => g.variable !== "rain");
       const left = others.filter((_, i) => i % 2 === 0);
       const right = others.filter((_, i) => i % 2 === 1);
-      if (groups.includes("rain")) right.unshift("rain");
+      const rainG = groups.find((g) => g.variable === "rain");
+      if (rainG) right.unshift(rainG);
       const step = 0.075;
       const x0 = step * Math.max(0, left.length - 1), x1 = 1 - step * Math.max(0, right.length - 1);
       layout.xaxis.domain = [x0, x1];
       layout.margin.r = 64;
       let n = 0;
-      const place = (g, side, k) => {
+      const place = (grp, side, k) => {
+        const g = grp.variable;
         n += 1;
         const id = n === 1 ? "y" : `y${n}`, key = n === 1 ? "yaxis" : `yaxis${n}`;
-        axisOf[g] = id;
-        const color = colorOf(state.selected.find((x) => seriesById[x].variable === g));
+        axisOf[grp.key] = id;
+        const color = colorOf(grp.sids[0]);
         const ax = {
           ...baseAxis(), side, showgrid: n === 1,
           title: { text: axisTitle(g, false), font: { color, size: 12 } },
@@ -278,7 +304,7 @@
         }
         layout[key] = ax;
       };
-      [...left].sort((a, b) => VAR_ORDER.indexOf(a) - VAR_ORDER.indexOf(b)).forEach((g, k) => place(g, "left", k));
+      left.forEach((g, k) => place(g, "left", k));
       right.forEach((g, k) => place(g, "right", k));
     }
     return { layout, axisOf };
@@ -310,7 +336,10 @@
       $("status").textContent = `Errore nel caricamento dei dati: ${e.message}`;
       return;
     }
-    const groups = VAR_ORDER.filter((g) => state.selected.some((x) => seriesById[x].variable === g));
+    const groups = makeGroups();
+    // altezza minima del riquadro: in Pannelli ~130 px per pannello; oltre, l'utente lo ridimensiona liberamente
+    const minH = state.mode === "panels" ? 110 + groups.length * 130 : 420;
+    chart.style.minHeight = `${minH}px`;
     const { layout, axisOf } = buildLayout(groups);
     const traces = buildTraces(groups, axisOf);
     if (chart.querySelector(".empty")) chart.innerHTML = "";
@@ -324,6 +353,13 @@
     if (!chart._relayoutBound) {
       chart.on("plotly_relayout", onRelayout);
       chart._relayoutBound = true;
+      // ridimensionamento del riquadro (maniglia in basso a destra o cambio di larghezza):
+      // i pannelli sono definiti in frazioni dell'altezza, quindi scalano insieme al riquadro
+      let rTimer = null;
+      new ResizeObserver(() => {
+        clearTimeout(rTimer);
+        rTimer = setTimeout(() => { if (chart.data) { ignoreRelayout++; Plotly.Plots.resize(chart).finally(() => setTimeout(() => { ignoreRelayout = Math.max(0, ignoreRelayout - 1); }, 50)); } }, 60);
+      }).observe(chart);
     }
     const nPts = Object.values(loaded).reduce((a, d) => a + d.t.length, 0);
     $("status").textContent = `Risoluzione ${RES_LABEL[res]} · ${nPts.toLocaleString("it-IT")} valori caricati`
@@ -488,7 +524,7 @@
   function writeHash() {
     const p = new URLSearchParams({
       s: state.selected.join(","), from: state.from, to: state.to,
-      mode: state.mode, res: state.res, log: state.logSuction ? "1" : "0",
+      mode: state.mode, res: state.res, log: state.logSuction ? "1" : "0", split: state.splitRain ? "1" : "0",
     });
     history.replaceState(null, "", `#${p.toString()}`);
   }
@@ -501,6 +537,7 @@
     state.mode = p.get("mode") === "overlay" ? "overlay" : "panels";
     state.res = ["auto", "1h", "1d", "raw"].includes(p.get("res")) ? p.get("res") : "auto";
     state.logSuction = p.get("log") === "1";
+    state.splitRain = p.get("split") === "1";
     state.selected.forEach(assignColor);
   }
   function syncInputs() {
@@ -508,6 +545,9 @@
     $("dTo").value = state.to.slice(0, 10);
     $("resSel").value = state.res;
     $("logSuction").checked = state.logSuction;
+    $("splitRain").checked = state.splitRain;
+    $("splitRain").disabled = state.mode !== "panels";
+    $("splitRain").parentElement.classList.toggle("disabled", state.mode !== "panels");
     document.querySelectorAll(".seg button").forEach((b) => b.classList.toggle("on", b.dataset.mode === state.mode));
   }
 
@@ -549,6 +589,7 @@
     $("resSel").onchange = (e) => { state.res = e.target.value; render(); };
     document.querySelectorAll(".seg button").forEach((b) => b.onclick = () => { state.mode = b.dataset.mode; render(); });
     $("logSuction").onchange = (e) => { state.logSuction = e.target.checked; render(); };
+    $("splitRain").onchange = (e) => { state.splitRain = e.target.checked; render(); };
     $("exportBtn").onclick = exportCSV;
     $("themeBtn").onclick = () => {
       const dark = getComputedStyle(document.documentElement).colorScheme === "dark";

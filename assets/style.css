@@ -97,11 +97,12 @@ button.link { border: 0; background: none; color: var(--accent); padding: 0; fon
 .presets button:last-child, .seg button:last-child { border-radius: 0 6px 6px 0; }
 .seg button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 label.check input { margin: 0; }
+label.check.disabled { opacity: .45; }
 
 .status { min-height: 18px; font-size: 12px; color: var(--text-2); }
 .chart {
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-  height: 640px; min-height: 360px; resize: vertical; overflow: hidden;
+  height: 640px; min-height: 300px; resize: vertical; overflow: hidden;
 }
 .empty { height: 100%; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 20px; }
 
