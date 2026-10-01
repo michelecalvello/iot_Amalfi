@@ -1,0 +1,32 @@
+{
+  "_doc": "Regole di controllo qualità. Flag: 0 = valido, 1 = sospetto (visibile, incluso negli aggregati), 2 = errato (escluso dagli aggregati). Orari in UTC+1. Modificabile a mano: rieseguire standardize.py dopo ogni modifica.",
+  "flags": {
+    "0": "valido",
+    "1": "sospetto",
+    "2": "errato"
+  },
+  "range_by_variable": {
+    "_doc": "Valori fuori da [min, max] -> flag 2",
+    "vwc":    {"min": 0.0,     "max": 0.65},
+    "psi":    {"min": -100000, "max": 0.0},
+    "t_soil": {"min": -10.0,   "max": 50.0},
+    "rain":   {"min": 0.0,     "max": 50.0},
+    "stage":  {"min": 0.0,     "max": 250.0}
+  },
+  "error_codes": {
+    "_doc": "Valori esatti che il sensore usa come codice di errore -> flag 2",
+    "AMF_S3_STAGE": [266.0]
+  },
+  "spike_by_series": {
+    "_doc": "Picco isolato: scarto da entrambi i valori adiacenti > threshold, con i due adiacenti entro neighbor_tolerance tra loro -> flag 1. Le piene reali (salita/discesa continua) non vengono segnalate.",
+    "AMF_S3_STAGE": {"threshold": 20.0, "neighbor_tolerance": 5.0}
+  },
+  "windows": [
+    {"series": ["AMF_S3_PSI_030"], "from": "2023-11-09 12:45", "to": "2023-11-09 13:10", "flag": 2,
+     "reason": "Transitorio di installazione TEROS 21"},
+    {"series": ["AMF_S3_PSI_060"], "from": "2023-11-09 12:45", "to": "2023-11-09 13:00", "flag": 2,
+     "reason": "Transitorio di installazione TEROS 21"},
+    {"series": ["AMF_S3_STAGE"], "from": "2024-05-28 14:00", "to": "2024-05-28 15:55", "flag": 2,
+     "reason": "Intervento/manutenzione sull'idrometro (valori 134-266 cm)"}
+  ]
+}

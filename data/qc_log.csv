@@ -1,0 +1,5 @@
+series_id,rule,flag,n,first,last
+AMF_S3_PSI_030,Transitorio di installazione TEROS 21,2,6,2023-11-09 12:45,2023-11-09 13:10
+AMF_S3_PSI_060,Transitorio di installazione TEROS 21,2,4,2023-11-09 12:45,2023-11-09 13:00
+AMF_S3_STAGE,"fuori range [0.0, 250.0]",2,3,2024-02-09 11:10,2024-05-28 14:38
+AMF_S3_STAGE,Intervento/manutenzione sull'idrometro (valori 134-266 cm),2,20,2024-05-28 14:00,2024-05-28 15:55

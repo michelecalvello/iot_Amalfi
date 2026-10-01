@@ -1,0 +1,1686 @@
+{
+  "catalog_version": "0.3",
+  "generated": "2026-10-01T11:17:37+01:00",
+  "conventions": {
+    "time_reference": "UTC+1 (ora solare italiana / CET, senza ora legale) per tutte le misure. Timestamp in ISO 8601 con offset '+01:00'. Sorgente: colonna 'Time UTC+1' dei file Excel, arrotondata al minuto. La colonna 'Time' (ora locale con ora legale) non è usata.",
+    "series_id": "<STAZIONE>_<GRANDEZZA>[_<PROFONDITÀ cm, 3 cifre>]",
+    "depth_m": "Profondità sotto il piano campagna, positiva verso il basso, in metri.",
+    "coordinates": "WGS84 (EPSG:4326), gradi decimali.",
+    "data_format": "File CSV con intestazione. Dati originali: time,value,flag (un file per serie e per anno). Aggregati: time,value,[min],max,n,coverage. time = 'YYYY-MM-DD HH:MM' in UTC+1. flag: 0 valido, 1 sospetto, 2 errato. Aggregati calcolati sui soli flag < 2.",
+    "aggregation_labels": "Grandezze istantanee: etichetta = inizio intervallo. Pioggia: ogni dato è riferito all'intervallo che termina al timestamp; l'etichetta oraria/giornaliera indica l'inizio del periodo di cumulo (es. giorno '2024-10-01' = pioggia da 2024-10-01 00:00 esclusa a 2024-10-02 00:00 inclusa)."
+  },
+  "variables": {
+    "rain": {
+      "label_it": "Pioggia",
+      "label_en": "Rainfall",
+      "unit": "mm",
+      "aggregation": "sum",
+      "plot": "bar",
+      "notes": "Altezza di pioggia caduta nell'intervallo che termina al timestamp."
+    },
+    "vwc": {
+      "label_it": "Contenuto d'acqua volumetrico",
+      "label_en": "Volumetric water content",
+      "unit": "m3/m3",
+      "aggregation": "mean",
+      "plot": "line"
+    },
+    "psi": {
+      "label_it": "Potenziale matriciale",
+      "label_en": "Matric potential",
+      "unit": "kPa",
+      "aggregation": "mean",
+      "plot": "line",
+      "notes": "Valori negativi = suzione. TEROS 21: accuratezza dichiarata tra -9 e -100 kPa; valori > -9 kPa (prossimi alla saturazione) sono indicativi."
+    },
+    "t_soil": {
+      "label_it": "Temperatura del suolo",
+      "label_en": "Soil temperature",
+      "unit": "°C",
+      "aggregation": "mean",
+      "plot": "line"
+    },
+    "stage": {
+      "label_it": "Livello idrometrico",
+      "label_en": "Stream water level",
+      "unit": "cm",
+      "aggregation": "mean",
+      "plot": "line"
+    }
+  },
+  "stations": [
+    {
+      "station_id": "AMF_S3",
+      "name": "Amalfi – Stazione S3",
+      "site": "Amalfi",
+      "municipality": "Amalfi (SA)",
+      "lat": 40.641976286697705,
+      "lon": 14.59616756640533,
+      "elevation_m": null,
+      "owner": "Università di Salerno",
+      "notes": "Nodo METER (suolo) e idrometro Arantec sul torrente.",
+      "distance_km": {
+        "AMF_ARA": 2.72
+      }
+    },
+    {
+      "station_id": "AMF_ARA",
+      "name": "Amalfi – Pluviometro Arantec",
+      "site": "Amalfi",
+      "municipality": "Amalfi (SA)",
+      "lat": 40.65303852484501,
+      "lon": 14.567404247139883,
+      "elevation_m": null,
+      "owner": "Università di Salerno",
+      "notes": "Pluviometro dedicato, a circa 2,7 km a ONO della stazione S3.",
+      "distance_km": {
+        "AMF_S3": 2.72
+      }
+    },
+    {
+      "station_id": "CF_21753",
+      "name": "Amalfi (CF 21753)",
+      "site": "Amalfi",
+      "municipality": "Amalfi (SA)",
+      "lat": null,
+      "lon": null,
+      "elevation_m": null,
+      "owner": "Centro Funzionale Multirischi – Regione Campania",
+      "external_code": "21753",
+      "notes": "Stazione della rete regionale; dati forniti con sola colonna 'Time UTC+1'.",
+      "distance_km": null
+    },
+    {
+      "station_id": "CF_51667",
+      "name": "Amalfi-Pogerola (CF 51667)",
+      "site": "Amalfi",
+      "municipality": "Amalfi (SA)",
+      "lat": null,
+      "lon": null,
+      "elevation_m": null,
+      "owner": "Centro Funzionale Multirischi – Regione Campania",
+      "external_code": "51667",
+      "notes": "Stazione della rete regionale; dati forniti con sola colonna 'Time UTC+1'.",
+      "distance_km": null
+    }
+  ],
+  "instruments": [
+    {
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "manufacturer": "METER Group",
+      "type": "Datalogger con sensori TEROS 10 (contenuto d'acqua) e TEROS 21 (potenziale, temperatura)"
+    },
+    {
+      "instrument_id": "AMF_S3_ARA_STAGE",
+      "station_id": "AMF_S3",
+      "manufacturer": "Arantec",
+      "type": "Idrometro (livello torrente)"
+    },
+    {
+      "instrument_id": "AMF_ARA_RAIN",
+      "station_id": "AMF_ARA",
+      "manufacturer": "Arantec",
+      "type": "Pluviometro"
+    },
+    {
+      "instrument_id": "CF_21753_RAIN",
+      "station_id": "CF_21753",
+      "manufacturer": "Centro Funzionale Regione Campania",
+      "type": "Pluviometro"
+    },
+    {
+      "instrument_id": "CF_51667_RAIN",
+      "station_id": "CF_51667",
+      "manufacturer": "Centro Funzionale Regione Campania",
+      "type": "Pluviometro"
+    }
+  ],
+  "series": [
+    {
+      "series_id": "AMF_ARA_RAIN",
+      "instrument_id": "AMF_ARA_RAIN",
+      "station_id": "AMF_ARA",
+      "variable": "rain",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia – Amalfi – Pluviometro Arantec",
+      "unit": "mm",
+      "aggregation": "sum",
+      "step_min": 5.0,
+      "start": "2024-04-02T11:30+01:00",
+      "end": "2025-12-31T23:45+01:00",
+      "n_values": 182280,
+      "min": 0.0,
+      "max": 13.3,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-04-12T13:00+01:00",
+          "to": "2024-04-15T09:55+01:00",
+          "hours": 68.9
+        }
+      ],
+      "qc_notes": [
+        "Totali sistematicamente superiori ai pluviometri CF: 2024 (apr–dic) 1139 mm vs 729 (CF 21753) e 901 mm (CF 51667); 2025: 1583 vs 1160 e 1371 mm. Correlazione giornaliera comunque buona (r = 0.84–0.88). Verificare quota/taratura.",
+        "Inizio registrazioni 2024-04-02. La lacuna 12–15 apr 2024 coincide con quella dell'idrometro Arantec in S3."
+      ],
+      "sources": [
+        {
+          "file": "Amalfi_Arantec_pluvio_2024.xlsx",
+          "year": 2024,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        },
+        {
+          "file": "Amalfi_Arantec_pluvio_2025.xlsx",
+          "year": 2025,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_ARA_RAIN/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_ARA_RAIN_1h.csv",
+        "agg_1d": "data/agg/AMF_ARA_RAIN_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 182280,
+        "n_valid": 182280,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_PSI_030",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "psi",
+      "depth_m": 0.3,
+      "sensor_model": "TEROS 21",
+      "logger_port": 6,
+      "label": "Potenziale matriciale 30 cm – Amalfi – Stazione S3",
+      "unit": "kPa",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225338,
+      "min": -2864.1,
+      "max": -0.2,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [
+        "2023-11-09 12:45–13:10: transitorio di installazione, valori fino a -2864 kPa da escludere."
+      ],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(kPa)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(kPa)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(kPa)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_PSI_030/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_PSI_030_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_PSI_030_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225338,
+        "n_valid": 225332,
+        "n_suspect": 0,
+        "n_bad": 6,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_PSI_060",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "psi",
+      "depth_m": 0.6,
+      "sensor_model": "TEROS 21",
+      "logger_port": 5,
+      "label": "Potenziale matriciale 60 cm – Amalfi – Stazione S3",
+      "unit": "kPa",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225337,
+      "min": -158.4,
+      "max": -0.1,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [
+        "2023-11-09 12:45–13:00: transitorio di installazione."
+      ],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(kPa)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(kPa)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(kPa)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_PSI_060/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_PSI_060_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_PSI_060_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225337,
+        "n_valid": 225333,
+        "n_suspect": 0,
+        "n_bad": 4,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_STAGE",
+      "instrument_id": "AMF_S3_ARA_STAGE",
+      "station_id": "AMF_S3",
+      "variable": "stage",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Livello idrometrico – Amalfi – Stazione S3",
+      "unit": "cm",
+      "aggregation": "mean",
+      "step_min": 15.0,
+      "start": "2024-01-08T00:00+01:00",
+      "end": "2025-12-30T22:15+01:00",
+      "n_values": 54406,
+      "min": 11.1,
+      "max": 266.0,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-01-19T19:15+01:00",
+          "to": "2024-01-21T09:01+01:00",
+          "hours": 37.8
+        },
+        {
+          "from": "2024-03-22T21:00+01:00",
+          "to": "2024-03-25T07:45+01:00",
+          "hours": 58.8
+        },
+        {
+          "from": "2024-04-12T13:00+01:00",
+          "to": "2024-04-15T07:00+01:00",
+          "hours": 66.0
+        },
+        {
+          "from": "2024-09-25T19:45+01:00",
+          "to": "2024-09-27T10:15+01:00",
+          "hours": 38.5
+        },
+        {
+          "from": "2024-10-02T19:45+01:00",
+          "to": "2024-10-04T09:30+01:00",
+          "hours": 37.8
+        },
+        {
+          "from": "2024-10-08T21:00+01:00",
+          "to": "2024-10-10T09:30+01:00",
+          "hours": 36.5
+        },
+        {
+          "from": "2024-10-14T13:00+01:00",
+          "to": "2024-10-24T11:00+01:00",
+          "hours": 238.0
+        },
+        {
+          "from": "2024-11-11T13:00+01:00",
+          "to": "2024-11-14T10:15+01:00",
+          "hours": 69.2
+        },
+        {
+          "from": "2024-11-20T03:45+01:00",
+          "to": "2024-11-21T09:30+01:00",
+          "hours": 29.8
+        },
+        {
+          "from": "2024-11-21T19:45+01:00",
+          "to": "2024-11-23T09:45+01:00",
+          "hours": 38.0
+        },
+        {
+          "from": "2025-12-02T17:45+01:00",
+          "to": "2025-12-15T10:45+01:00",
+          "hours": 305.0
+        },
+        {
+          "from": "2025-12-18T03:15+01:00",
+          "to": "2025-12-24T11:00+01:00",
+          "hours": 151.8
+        },
+        {
+          "from": "2025-12-27T01:45+01:00",
+          "to": "2025-12-28T10:15+01:00",
+          "hours": 32.5
+        },
+        {
+          "from": "2025-12-28T11:45+01:00",
+          "to": "2025-12-29T12:30+01:00",
+          "hours": 24.8
+        }
+      ],
+      "qc_notes": [
+        "Valore 266.0 cm ricorrente = probabile codice di errore/fondo scala (es. 2024-02-09 11:10).",
+        "2024-05-28 dalle 14:00: valori anomali (~134–209 cm), probabile intervento/manutenzione.",
+        "Passo nominale 15 min ma con registrazioni irregolari (es. 5 min, minuti non allineati)."
+      ],
+      "sources": [
+        {
+          "file": "Amalfi_Arantec_S3stream_water_level_2024.xlsx",
+          "year": 2024,
+          "sheet": "SL",
+          "column": "stream level (cm)"
+        },
+        {
+          "file": "Amalfi_Arantec_S3stream_water_level_2025.xlsx",
+          "year": 2025,
+          "sheet": "SL",
+          "column": "stream level (cm)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_STAGE/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_STAGE_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_STAGE_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 54406,
+        "n_valid": 54383,
+        "n_suspect": 0,
+        "n_bad": 23,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_030",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "t_soil",
+      "depth_m": 0.3,
+      "sensor_model": "TEROS 21",
+      "logger_port": 6,
+      "label": "Temperatura del suolo 30 cm – Amalfi – Stazione S3",
+      "unit": "°C",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225338,
+      "min": 8.7,
+      "max": 28.1,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(°C)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(°C)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port6-30cm-T21",
+          "column": "Port6-T21-30cm(°C)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_TSOIL_030/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_TSOIL_030_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_TSOIL_030_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225338,
+        "n_valid": 225338,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_060",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "t_soil",
+      "depth_m": 0.6,
+      "sensor_model": "TEROS 21",
+      "logger_port": 5,
+      "label": "Temperatura del suolo 60 cm – Amalfi – Stazione S3",
+      "unit": "°C",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225337,
+      "min": 9.1,
+      "max": 27.1,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(°C)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(°C)"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port5-60cm-T21",
+          "column": "Port5-T21-60cm(°C)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_TSOIL_060/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_TSOIL_060_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_TSOIL_060_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225337,
+        "n_valid": 225337,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_VWC_015",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "vwc",
+      "depth_m": 0.15,
+      "sensor_model": "TEROS 10",
+      "logger_port": 4,
+      "label": "Contenuto d'acqua volumetrico 15 cm – Amalfi – Stazione S3",
+      "unit": "m3/m3",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225337,
+      "min": 0.044,
+      "max": 0.386,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port4-15cm-T10",
+          "column": "Port4-T10-15cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port4-15cm-T10",
+          "column": "Port4-T10-15cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port4-15cm-T10",
+          "column": "Port4-T10-15cm"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_VWC_015/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_VWC_015_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_VWC_015_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225337,
+        "n_valid": 225337,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_VWC_030",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "vwc",
+      "depth_m": 0.3,
+      "sensor_model": "TEROS 10",
+      "logger_port": 3,
+      "label": "Contenuto d'acqua volumetrico 30 cm – Amalfi – Stazione S3",
+      "unit": "m3/m3",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225338,
+      "min": 0.056,
+      "max": 0.327,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port3-30cm-T10",
+          "column": "Port3-T10-30cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port3-30cm-T10",
+          "column": "Port3-T10-30cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port3-30cm-T10",
+          "column": "Port3-T10-30cm"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_VWC_030/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_VWC_030_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_VWC_030_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225338,
+        "n_valid": 225338,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_VWC_045",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "vwc",
+      "depth_m": 0.45,
+      "sensor_model": "TEROS 10",
+      "logger_port": 2,
+      "label": "Contenuto d'acqua volumetrico 45 cm – Amalfi – Stazione S3",
+      "unit": "m3/m3",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225336,
+      "min": 0.089,
+      "max": 0.381,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port2-45cm-T10",
+          "column": "Port2-T10-45cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port2-45cm-T10",
+          "column": "Port2-T10-45cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port2-45cm-T10",
+          "column": "Port2-T10-45cm"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_VWC_045/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_VWC_045_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_VWC_045_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225336,
+        "n_valid": 225336,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_S3_VWC_060",
+      "instrument_id": "AMF_S3_METER",
+      "station_id": "AMF_S3",
+      "variable": "vwc",
+      "depth_m": 0.6,
+      "sensor_model": "TEROS 10",
+      "logger_port": 1,
+      "label": "Contenuto d'acqua volumetrico 60 cm – Amalfi – Stazione S3",
+      "unit": "m3/m3",
+      "aggregation": "mean",
+      "step_min": 5.0,
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 225337,
+      "min": 0.072,
+      "max": 0.309,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2025-12-17T16:15+01:00",
+          "to": "2025-12-18T17:20+01:00",
+          "hours": 25.1
+        }
+      ],
+      "qc_notes": [],
+      "sources": [
+        {
+          "file": "Amalfi_Meter_S3_2023.xlsx",
+          "year": 2023,
+          "sheet": "Port1-60cm-T10",
+          "column": "Port1-T10-60cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2024.xlsx",
+          "year": 2024,
+          "sheet": "Port1-60cm-T10",
+          "column": "Port1-T10-60cm"
+        },
+        {
+          "file": "Amalfi_Meter_S3_2025.xlsx",
+          "year": 2025,
+          "sheet": "Port1-60cm-T10",
+          "column": "Port1-T10-60cm"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_S3_VWC_060/{year}.csv",
+        "years": [
+          2023,
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_S3_VWC_060_1h.csv",
+        "agg_1d": "data/agg/AMF_S3_VWC_060_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 225337,
+        "n_valid": 225337,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_21753_RAIN",
+      "instrument_id": "CF_21753_RAIN",
+      "station_id": "CF_21753",
+      "variable": "rain",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia – Amalfi (CF 21753)",
+      "unit": "mm",
+      "aggregation": "sum",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100581,
+      "min": 0.0,
+      "max": 16.8,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Lacune 2024 (incl. 10 giu–4 lug, 562 h) identiche a quelle di CF 51667: probabile interruzione della rete/fornitura dati."
+      ],
+      "sources": [
+        {
+          "file": "AMALFI_PLUVIOMETRO_CF_2024.xlsx",
+          "year": 2024,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        },
+        {
+          "file": "AMALFI_PLUVIOMETRO_CF_2025.xlsx",
+          "year": 2025,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_21753_RAIN/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_21753_RAIN_1h.csv",
+        "agg_1d": "data/agg/CF_21753_RAIN_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100581,
+        "n_valid": 100581,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_51667_RAIN",
+      "instrument_id": "CF_51667_RAIN",
+      "station_id": "CF_51667",
+      "variable": "rain",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia – Amalfi-Pogerola (CF 51667)",
+      "unit": "mm",
+      "aggregation": "sum",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 21.6,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Lacune 2024 (incl. 10 giu–4 lug, 562 h) identiche a quelle di CF 21753.",
+        "Alcuni timestamp con millisecondi spuri (es. 23:50:00.004): arrotondati al minuto."
+      ],
+      "sources": [
+        {
+          "file": "AMALFI-POGEROLA_PLUVIOMETRO_CF_2024.xlsx",
+          "year": 2024,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        },
+        {
+          "file": "AMALFI-POGEROLA_PLUVIOMETRO_CF_2025.xlsx",
+          "year": 2025,
+          "sheet": "Pluvio",
+          "column": "Rain (mm)"
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_51667_RAIN/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_51667_RAIN_1h.csv",
+        "agg_1d": "data/agg/CF_51667_RAIN_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 100651,
+        "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    }
+  ],
+  "source_files": [
+    {
+      "series_id": "AMF_S3_VWC_015",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port4-15cm-T10",
+      "column": "Port4-T10-15cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 0.044,
+      "max": 0.385,
+      "mean": 0.2015
+    },
+    {
+      "series_id": "AMF_S3_VWC_030",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port3-30cm-T10",
+      "column": "Port3-T10-30cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 0.056,
+      "max": 0.327,
+      "mean": 0.1873
+    },
+    {
+      "series_id": "AMF_S3_VWC_045",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port2-45cm-T10",
+      "column": "Port2-T10-45cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 0.115,
+      "max": 0.352,
+      "mean": 0.2218
+    },
+    {
+      "series_id": "AMF_S3_VWC_060",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port1-60cm-T10",
+      "column": "Port1-T10-60cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 0.111,
+      "max": 0.249,
+      "mean": 0.1859
+    },
+    {
+      "series_id": "AMF_S3_PSI_030",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": -371.6,
+      "max": -0.2,
+      "mean": -36.6463
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_030",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 8.7,
+      "max": 28.1,
+      "mean": 17.7714
+    },
+    {
+      "series_id": "AMF_S3_PSI_060",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": -58.6,
+      "max": -0.1,
+      "mean": -12.7511
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_060",
+      "file": "Amalfi_Meter_S3_2024.xlsx",
+      "year": 2024,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-01T00:00+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 105408,
+      "n_rows": 105408,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.1,
+      "min": 9.3,
+      "max": 27.1,
+      "mean": 17.5062
+    },
+    {
+      "series_id": "AMF_ARA_RAIN",
+      "file": "Amalfi_Arantec_pluvio_2025.xlsx",
+      "year": 2025,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:45+01:00",
+      "n_values": 104908,
+      "n_rows": 104908,
+      "step_min": 5.0,
+      "gaps_over_1h": 8,
+      "max_gap_h": 10.5,
+      "min": 0.0,
+      "max": 10.3,
+      "mean": 0.0151
+    },
+    {
+      "series_id": "AMF_S3_STAGE",
+      "file": "Amalfi_Arantec_S3stream_water_level_2024.xlsx",
+      "year": 2024,
+      "sheet": "SL",
+      "column": "stream level (cm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-01-08T00:00+01:00",
+      "end": "2024-11-24T17:00+01:00",
+      "n_values": 26470,
+      "n_rows": 26470,
+      "step_min": 15.0,
+      "gaps_over_1h": 55,
+      "max_gap_h": 238.0,
+      "min": 11.1,
+      "max": 266.0,
+      "mean": 19.4076
+    },
+    {
+      "series_id": "AMF_ARA_RAIN",
+      "file": "Amalfi_Arantec_pluvio_2024.xlsx",
+      "year": 2024,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2024-04-02T11:30+01:00",
+      "end": "2024-12-31T23:55+01:00",
+      "n_values": 77372,
+      "n_rows": 77372,
+      "step_min": 5.0,
+      "gaps_over_1h": 34,
+      "max_gap_h": 68.9,
+      "min": 0.0,
+      "max": 13.3,
+      "mean": 0.0147
+    },
+    {
+      "series_id": "AMF_S3_VWC_015",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port4-15cm-T10",
+      "column": "Port4-T10-15cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15109,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 0.225,
+      "max": 0.296,
+      "mean": 0.2433
+    },
+    {
+      "series_id": "AMF_S3_VWC_030",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port3-30cm-T10",
+      "column": "Port3-T10-30cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15110,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 0.213,
+      "max": 0.261,
+      "mean": 0.2254
+    },
+    {
+      "series_id": "AMF_S3_VWC_045",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port2-45cm-T10",
+      "column": "Port2-T10-45cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15108,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.3,
+      "min": 0.238,
+      "max": 0.351,
+      "mean": 0.2601
+    },
+    {
+      "series_id": "AMF_S3_VWC_060",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port1-60cm-T10",
+      "column": "Port1-T10-60cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15109,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 0.196,
+      "max": 0.248,
+      "mean": 0.2115
+    },
+    {
+      "series_id": "AMF_S3_PSI_030",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15110,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": -2864.1,
+      "max": -0.5,
+      "mean": -1.8579
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_030",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15110,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 9.5,
+      "max": 18.6,
+      "mean": 12.6445
+    },
+    {
+      "series_id": "AMF_S3_PSI_060",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15109,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": -69.0,
+      "max": -0.2,
+      "mean": -0.3025
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_060",
+      "file": "Amalfi_Meter_S3_2023.xlsx",
+      "year": 2023,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2023-11-09T12:45+01:00",
+      "end": "2023-12-31T23:55+01:00",
+      "n_values": 15109,
+      "n_rows": 15111,
+      "step_min": 5.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 10.2,
+      "max": 18.1,
+      "mean": 13.0775
+    },
+    {
+      "series_id": "CF_21753_RAIN",
+      "file": "AMALFI_PLUVIOMETRO_CF_2024.xlsx",
+      "year": 2024,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": null,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2024-12-31T23:50+01:00",
+      "n_values": 48092,
+      "n_rows": 48102,
+      "step_min": 10.0,
+      "gaps_over_1h": 9,
+      "max_gap_h": 562.3,
+      "min": 0.0,
+      "max": 16.8,
+      "mean": 0.0239
+    },
+    {
+      "series_id": "CF_21753_RAIN",
+      "file": "AMALFI_PLUVIOMETRO_CF_2025.xlsx",
+      "year": 2025,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": null,
+      "start": "2025-01-01T00:10+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 52489,
+      "n_rows": 52490,
+      "step_min": 10.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 11.7,
+      "min": 0.0,
+      "max": 14.8,
+      "mean": 0.0221
+    },
+    {
+      "series_id": "CF_51667_RAIN",
+      "file": "AMALFI-POGEROLA_PLUVIOMETRO_CF_2024.xlsx",
+      "year": 2024,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": null,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2024-12-31T23:50+01:00",
+      "n_values": 48092,
+      "n_rows": 48102,
+      "step_min": 10.0,
+      "gaps_over_1h": 9,
+      "max_gap_h": 562.3,
+      "min": 0.0,
+      "max": 21.6,
+      "mean": 0.0295
+    },
+    {
+      "series_id": "AMF_S3_VWC_015",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port4-15cm-T10",
+      "column": "Port4-T10-15cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 0.054,
+      "max": 0.386,
+      "mean": 0.2085
+    },
+    {
+      "series_id": "AMF_S3_VWC_030",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port3-30cm-T10",
+      "column": "Port3-T10-30cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 0.061,
+      "max": 0.303,
+      "mean": 0.1913
+    },
+    {
+      "series_id": "AMF_S3_VWC_045",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port2-45cm-T10",
+      "column": "Port2-T10-45cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 0.089,
+      "max": 0.381,
+      "mean": 0.2184
+    },
+    {
+      "series_id": "AMF_S3_VWC_060",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port1-60cm-T10",
+      "column": "Port1-T10-60cm",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 0.072,
+      "max": 0.309,
+      "mean": 0.1768
+    },
+    {
+      "series_id": "AMF_S3_PSI_030",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": -312.2,
+      "max": -0.2,
+      "mean": -25.3583
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_030",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port6-30cm-T21",
+      "column": "Port6-T21-30cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 8.7,
+      "max": 26.5,
+      "mean": 17.0164
+    },
+    {
+      "series_id": "AMF_S3_PSI_060",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(kPa)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": -158.4,
+      "max": -0.1,
+      "mean": -20.1518
+    },
+    {
+      "series_id": "AMF_S3_TSOIL_060",
+      "file": "Amalfi_Meter_S3_2025.xlsx",
+      "year": 2025,
+      "sheet": "Port5-60cm-T21",
+      "column": "Port5-T21-60cm(°C)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-01-01T00:00+01:00",
+      "end": "2025-12-31T23:55+01:00",
+      "n_values": 104820,
+      "n_rows": 104820,
+      "step_min": 5.0,
+      "gaps_over_1h": 1,
+      "max_gap_h": 25.1,
+      "min": 9.1,
+      "max": 25.2,
+      "mean": 16.8161
+    },
+    {
+      "series_id": "CF_51667_RAIN",
+      "file": "AMALFI-POGEROLA_PLUVIOMETRO_CF_2025.xlsx",
+      "year": 2025,
+      "sheet": "Pluvio",
+      "column": "Rain (mm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": null,
+      "start": "2025-01-01T00:10+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 52559,
+      "n_rows": 52560,
+      "step_min": 10.0,
+      "gaps_over_1h": 0,
+      "max_gap_h": 0.2,
+      "min": 0.0,
+      "max": 13.8,
+      "mean": 0.0261
+    },
+    {
+      "series_id": "AMF_S3_STAGE",
+      "file": "Amalfi_Arantec_S3stream_water_level_2025.xlsx",
+      "year": 2025,
+      "sheet": "SL",
+      "column": "stream level (cm)",
+      "time_column": "Time UTC+1",
+      "local_time_column": "Time",
+      "start": "2025-02-21T11:36+01:00",
+      "end": "2025-12-30T22:15+01:00",
+      "n_values": 27936,
+      "n_rows": 27936,
+      "step_min": 15.0,
+      "gaps_over_1h": 4,
+      "max_gap_h": 305.0,
+      "min": 11.8,
+      "max": 33.2,
+      "mean": 15.4769
+    }
+  ],
+  "qc_rules": {
+    "flags": {
+      "0": "valido",
+      "1": "sospetto",
+      "2": "errato"
+    },
+    "range_by_variable": {
+      "_doc": "Valori fuori da [min, max] -> flag 2",
+      "vwc": {
+        "min": 0.0,
+        "max": 0.65
+      },
+      "psi": {
+        "min": -100000,
+        "max": 0.0
+      },
+      "t_soil": {
+        "min": -10.0,
+        "max": 50.0
+      },
+      "rain": {
+        "min": 0.0,
+        "max": 50.0
+      },
+      "stage": {
+        "min": 0.0,
+        "max": 250.0
+      }
+    },
+    "error_codes": {
+      "_doc": "Valori esatti che il sensore usa come codice di errore -> flag 2",
+      "AMF_S3_STAGE": [
+        266.0
+      ]
+    },
+    "spike_by_series": {
+      "_doc": "Picco isolato: scarto da entrambi i valori adiacenti > threshold, con i due adiacenti entro neighbor_tolerance tra loro -> flag 1. Le piene reali (salita/discesa continua) non vengono segnalate.",
+      "AMF_S3_STAGE": {
+        "threshold": 20.0,
+        "neighbor_tolerance": 5.0
+      }
+    },
+    "windows": [
+      {
+        "series": [
+          "AMF_S3_PSI_030"
+        ],
+        "from": "2023-11-09 12:45",
+        "to": "2023-11-09 13:10",
+        "flag": 2,
+        "reason": "Transitorio di installazione TEROS 21"
+      },
+      {
+        "series": [
+          "AMF_S3_PSI_060"
+        ],
+        "from": "2023-11-09 12:45",
+        "to": "2023-11-09 13:00",
+        "flag": 2,
+        "reason": "Transitorio di installazione TEROS 21"
+      },
+      {
+        "series": [
+          "AMF_S3_STAGE"
+        ],
+        "from": "2024-05-28 14:00",
+        "to": "2024-05-28 15:55",
+        "flag": 2,
+        "reason": "Intervento/manutenzione sull'idrometro (valori 134-266 cm)"
+      }
+    ]
+  }
+}
