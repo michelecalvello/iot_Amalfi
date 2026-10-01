@@ -122,6 +122,13 @@ for s in catalog["series"]:
                     "n": n_dup, "first": None, "last": None})
     d = apply_qc(s, d, log)
 
+    # lacune > 24 h sulla serie completa (anche tra un file annuale e il successivo)
+    dt = d["time"].diff()
+    s["gaps_over_24h"] = [{"from": d["time"][i - 1].strftime("%Y-%m-%dT%H:%M+01:00"),
+                           "to": d["time"][i].strftime("%Y-%m-%dT%H:%M+01:00"),
+                           "hours": round(dt[i].total_seconds() / 3600, 1)}
+                          for i in dt.index[dt > pd.Timedelta(hours=24)]]
+
     # dati originali, un file per anno
     raw_dir = os.path.join(OUT_DIR, "data", "raw", sid)
     os.makedirs(raw_dir, exist_ok=True)
@@ -169,4 +176,11 @@ catalog["qc_rules"] = {k: v for k, v in rules.items() if not k.startswith("_")}
 with open(CATALOG, "w", encoding="utf-8") as fh:
     json.dump(catalog, fh, ensure_ascii=False, indent=2)
 pd.DataFrame(log).to_csv(os.path.join(OUT_DIR, "data", "qc_log.csv"), index=False)
+# allinea series.csv (numero di lacune ricalcolato sulla serie completa)
+_flat_path = os.path.join(OUT_DIR, "series.csv")
+if os.path.exists(_flat_path):
+    _flat = pd.read_csv(_flat_path, encoding="utf-8-sig")
+    _ng = {s["series_id"]: len(s["gaps_over_24h"]) for s in catalog["series"]}
+    _flat["n_gaps_over_24h"] = _flat["series_id"].map(_ng)
+    _flat.to_csv(_flat_path, index=False, encoding="utf-8-sig")
 print("\nQC log:"); print(pd.DataFrame(log).to_string())

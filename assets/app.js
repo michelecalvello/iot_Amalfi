@@ -395,8 +395,10 @@
     for (let i = 0; i < d.t.length; i++) {
       if (d.t[i] < t0 || d.t[i] > t1 || d.v[i] == null) continue;
       n++; sum += d.v[i];
-      mn = Math.min(mn, d.min[i] ?? d.v[i]);
-      mx = Math.max(mx, d.max[i] ?? d.v[i]);
+      // pioggia: estremi del cumulato alla risoluzione visualizzata; altre grandezze: estremi dei dati
+      const isRain = s.variable === "rain";
+      mn = Math.min(mn, isRain ? d.v[i] : (d.min[i] ?? d.v[i]));
+      mx = Math.max(mx, isRain ? d.v[i] : (d.max[i] ?? d.v[i]));
       if (d.cov[i] != null) { covSum += d.cov[i]; covN++; }
     }
     const expected = (t1 - t0) / stepMs(s, d.res);
@@ -420,7 +422,7 @@
         <td>${Math.round(st.cov * 100)}%</td></tr>`;
     }).join("");
     tbl.innerHTML = `<thead><tr><th>Serie</th><th>Unità</th><th>Risoluzione</th><th>N</th>
-      <th>Min</th><th>Media</th><th>Max</th><th>Totale</th><th>Copertura</th></tr></thead><tbody>${rows}</tbody>`;
+      <th>Min</th><th>Media</th><th title="Per la pioggia: massimo cumulato alla risoluzione visualizzata (orario, giornaliero o per singola registrazione)">Max</th><th>Totale</th><th>Copertura</th></tr></thead><tbody>${rows}</tbody>`;
   }
 
   function exportCSV() {
@@ -439,6 +441,12 @@
     URL.revokeObjectURL(a.href);
   }
 
+  // ---------------------------------------------------------------- stazioni
+  const isCF = (st) => /^CF_/.test(st.station_id);
+  const elevLabel = (st) => st.elevation_m != null ? `${st.elevation_m} m s.l.m.` : "quota n.d.";
+  // ordine: stazioni UNISA, poi rete CF per quota crescente
+  const stationOrder = (a, b) => (isCF(a) - isCF(b)) || ((a.elevation_m ?? 0) - (b.elevation_m ?? 0));
+
   // ---------------------------------------------------------------- elenco serie
   function renderSeriesList() {
     const list = $("seriesList");
@@ -447,8 +455,11 @@
       (!state.fVariable || s.variable === state.fVariable));
     const byStation = {};
     vis.forEach((s) => (byStation[s.station_id] ||= []).push(s));
-    list.innerHTML = Object.entries(byStation).map(([stId, arr]) => `
-      <div class="st-group"><div class="st-title">${stationById[stId].name}</div>
+    const ordered = Object.entries(byStation)
+      .sort(([a], [b]) => stationOrder(stationById[a], stationById[b]));
+    list.innerHTML = ordered.map(([stId, arr]) => `
+      <div class="st-group"><div class="st-title">${stationById[stId].name}
+        <span class="st-elev">${stationById[stId].elevation_m != null ? `${stationById[stId].elevation_m} m` : ""}</span></div>
       ${arr.sort((a, b) => VAR_ORDER.indexOf(a.variable) - VAR_ORDER.indexOf(b.variable) || (a.depth_m ?? 0) - (b.depth_m ?? 0))
         .map((s) => {
           const on = state.selected.includes(s.series_id);
@@ -484,7 +495,8 @@
       <h3>${s.label}</h3>
       <dl>
         <dt>Codice serie</dt><dd><code>${s.series_id}</code></dd>
-        <dt>Stazione</dt><dd>${st.name}${st.lat != null ? ` (${st.lat.toFixed(5)}, ${st.lon.toFixed(5)})` : ""}</dd>
+        <dt>Stazione</dt><dd>${st.name}${st.external_code ? ` · codice ${st.external_code}` : ""}</dd>
+        <dt>Posizione</dt><dd>${st.lat != null ? `${st.lat.toFixed(5)}, ${st.lon.toFixed(5)}` : "n.d."} · ${elevLabel(st)}</dd>
         <dt>Gestore</dt><dd>${st.owner || "–"}</dd>
         <dt>Sensore</dt><dd>${s.sensor_model || "–"}${s.logger_port ? ` · porta ${s.logger_port}` : ""}</dd>
         <dt>Grandezza</dt><dd>${catalog.variables[s.variable].label_it} [${s.unit}]</dd>
@@ -511,9 +523,10 @@
     }).addTo(map);
     const pts = withXY.map((s) => {
       const m = L.circleMarker([s.lat, s.lon], {
-        radius: 8, weight: 2, color: "#ffffff", fillColor: css("--accent"), fillOpacity: 1,
+        radius: isCF(s) ? 7 : 8, weight: 2, color: "#ffffff",
+        fillColor: isCF(s) ? css("--s2") : css("--s1"), fillOpacity: 1,
       }).addTo(map);
-      m.bindTooltip(s.name);
+      m.bindTooltip(`<b>${s.name}</b><br>${elevLabel(s)}<br><span style="opacity:.75">clic per filtrare le serie</span>`);
       m.on("click", () => { state.fStation = s.station_id; $("fStation").value = s.station_id; renderSeriesList(); });
       return [s.lat, s.lon];
     });
@@ -553,7 +566,7 @@
 
   function bindControls() {
     const fill = (el, opts) => { el.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join(""); };
-    fill($("fStation"), [["", "Tutte le stazioni"], ...catalog.stations.map((s) => [s.station_id, s.name])]);
+    fill($("fStation"), [["", "Tutte le stazioni"], ...[...catalog.stations].sort(stationOrder).map((s) => [s.station_id, s.name])]);
     fill($("fVariable"), [["", "Tutte le grandezze"],
       ...VAR_ORDER.filter((v) => catalog.series.some((s) => s.variable === v)).map((v) => [v, catalog.variables[v].label_it])]);
     $("fStation").onchange = (e) => { state.fStation = e.target.value; renderSeriesList(); };

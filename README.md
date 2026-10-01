@@ -40,8 +40,8 @@ data/qc_log.csv         elenco dei valori segnalati e regola applicata
 ## Fonti dei dati
 
 - Stazione S3 (sensori METER, idrometro Arantec) e pluviometro Arantec: Università di Salerno.
-- Pluviometri 21753 (Amalfi) e 51667 (Amalfi-Pogerola): Centro Funzionale Multirischi
-  della Protezione Civile – Regione Campania.
+- Pluviometri 21753 (Amalfi), 51667 (Amalfi-Pogerola), 51663 (Scala-S.Caterina), 21767 (Agerola)
+  e 36428 (Agerola METEO): Centro Funzionale Multirischi della Protezione Civile – Regione Campania.
 
 ## Portale web
 

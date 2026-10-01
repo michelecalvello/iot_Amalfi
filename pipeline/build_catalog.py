@@ -42,23 +42,25 @@ STATIONS = {
         "owner": "Università di Salerno",
         "notes": "Pluviometro dedicato, a circa 2,7 km a ONO della stazione S3.",
     },
-    "CF_21753": {
-        "name": "Amalfi (CF 21753)",
-        "site": "Amalfi", "municipality": "Amalfi (SA)",
-        "lat": None, "lon": None, "elevation_m": None,
-        "owner": "Centro Funzionale Multirischi – Regione Campania",
-        "external_code": "21753",
-        "notes": "Stazione della rete regionale; dati forniti con sola colonna 'Time UTC+1'.",
-    },
-    "CF_51667": {
-        "name": "Amalfi-Pogerola (CF 51667)",
-        "site": "Amalfi", "municipality": "Amalfi (SA)",
-        "lat": None, "lon": None, "elevation_m": None,
-        "owner": "Centro Funzionale Multirischi – Regione Campania",
-        "external_code": "51667",
-        "notes": "Stazione della rete regionale; dati forniti con sola colonna 'Time UTC+1'.",
-    },
 }
+
+# Pluviometri della rete del Centro Funzionale Multirischi (Regione Campania)
+def _cf(code, name, municipality, lat, lon, elev):
+    return {"name": f"{name} (CF {code})", "site": municipality.split(" (")[0], "municipality": municipality,
+            "lat": lat, "lon": lon, "elevation_m": elev,
+            "owner": "Centro Funzionale Multirischi – Regione Campania", "external_code": code,
+            "notes": "Stazione della rete regionale; dati forniti con sola colonna 'Time UTC+1'."}
+
+CF_STATIONS = {   # codice: (nome, comune, lat, lon, quota m s.l.m., pattern file)
+    "21753": ("Amalfi",            "Amalfi (SA)",  40.62227778, 14.57958333, 114, r"^AMALFI_PLUVIOMETRO_CF_\d{4}\.xlsx$"),
+    "51667": ("Amalfi-Pogerola",   "Amalfi (SA)",  40.63827778, 14.59083333, 372, r"^AMALFI-POGEROLA_PLUVIOMETRO_CF_\d{4}\.xlsx$"),
+    "51663": ("Scala-S.Caterina",  "Scala (SA)",   40.66047222, 14.60338889, 453, r"^SCALA-S\.CATERINA_PLUVIOMETRO_CF_\d{4}\.xlsx$"),
+    "21767": ("Agerola",           "Agerola (NA)", 40.63825,    14.545,      623, r"^AGEROLA_PLUVIOMETRO_CF_\d{4}\.xlsx$"),
+    "36428": ("Agerola METEO",     "Agerola (NA)", 40.64683333, 14.54061111, 848, r"^AGEROLA_METEO_1_PLUVIOMETRO_CF_\d{4}\.xlsx$"),
+}
+for _code, (_n, _m, _la, _lo, _el, _pat) in CF_STATIONS.items():
+    STATIONS[f"CF_{_code}"] = _cf(_code, _n, _m, _la, _lo, _el)
+
 
 # ----------------------------------------------------------------------------
 # 2. STRUMENTI (logger / sensori fisici) e riconoscimento file
@@ -73,13 +75,11 @@ INSTRUMENTS = {
     "AMF_ARA_RAIN": {"station_id": "AMF_ARA", "manufacturer": "Arantec",
                      "type": "Pluviometro",
                      "file_pattern": r"^Amalfi_Arantec_pluvio_\d{4}\.xlsx$"},
-    "CF_21753_RAIN": {"station_id": "CF_21753", "manufacturer": "Centro Funzionale Regione Campania",
-                      "type": "Pluviometro",
-                      "file_pattern": r"^AMALFI_PLUVIOMETRO_CF_\d{4}\.xlsx$"},
-    "CF_51667_RAIN": {"station_id": "CF_51667", "manufacturer": "Centro Funzionale Regione Campania",
-                      "type": "Pluviometro",
-                      "file_pattern": r"^AMALFI-POGEROLA_PLUVIOMETRO_CF_\d{4}\.xlsx$"},
 }
+for _code, (_n, _m, _la, _lo, _el, _pat) in CF_STATIONS.items():
+    INSTRUMENTS[f"CF_{_code}_RAIN"] = {"station_id": f"CF_{_code}", "manufacturer": "Centro Funzionale Regione Campania",
+                                      "type": "Pluviometro", "file_pattern": _pat}
+
 
 # ----------------------------------------------------------------------------
 # 3. GRANDEZZE (vocabolario controllato)
@@ -133,14 +133,18 @@ QC_NOTES = {
     "AMF_S3_STAGE": ["Valore 266.0 cm ricorrente = probabile codice di errore/fondo scala (es. 2024-02-09 11:10).",
                      "2024-05-28 dalle 14:00: valori anomali (~134–209 cm), probabile intervento/manutenzione.",
                      "Passo nominale 15 min ma con registrazioni irregolari (es. 5 min, minuti non allineati)."],
-    "AMF_ARA_RAIN": ["Totali sistematicamente superiori ai pluviometri CF: 2024 (apr–dic) 1139 mm vs "
-                     "729 (CF 21753) e 901 mm (CF 51667); 2025: 1583 vs 1160 e 1371 mm. "
-                     "Correlazione giornaliera comunque buona (r = 0.84–0.88). Verificare quota/taratura.",
+    "AMF_ARA_RAIN": ["Confronto su 563 giorni comuni (apr 2024 – dic 2025): Arantec 2430 mm, in linea con "
+                     "Scala-S.Caterina CF 51663 (2386 mm, 453 m) e Agerola METEO CF 36428 (2262 mm, 848 m), "
+                     "correlazione giornaliera 0.96–0.97; superiore ad Amalfi CF 21753 (1678 mm, 114 m) in modo "
+                     "coerente con l'effetto orografico. Quota del pluviometro da definire.",
                      "Inizio registrazioni 2024-04-02. La lacuna 12–15 apr 2024 coincide con quella dell'idrometro Arantec in S3."],
-    "CF_21753_RAIN": ["Lacune 2024 (incl. 10 giu–4 lug, 562 h) identiche a quelle di CF 51667: probabile interruzione della rete/fornitura dati."],
-    "CF_51667_RAIN": ["Lacune 2024 (incl. 10 giu–4 lug, 562 h) identiche a quelle di CF 21753.",
-                      "Alcuni timestamp con millisecondi spuri (es. 23:50:00.004): arrotondati al minuto."],
+    "CF_51667_RAIN": ["Alcuni timestamp con millisecondi spuri (es. 23:50:00.004): arrotondati al minuto."],
+    "CF_21767_RAIN": ["Dati 2025 disponibili solo dal 2025-02-16: lacuna 1 gen – 16 feb 2025."],
 }
+for _code in CF_STATIONS:   # nota comune a tutta la rete CF
+    QC_NOTES.setdefault(f"CF_{_code}_RAIN", []).insert(0,
+        "Lacune 2024 (19–21 mar, 5–9 giu, 10 giu–4 lug, 5–8 lug) comuni a tutte le stazioni CF: "
+        "interruzione della rete/fornitura dati, non del sensore.")
 
 # ----------------------------------------------------------------------------
 # 5. SCANSIONE FILE

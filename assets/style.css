@@ -68,8 +68,16 @@ button.link { border: 0; background: none; color: var(--accent); padding: 0; fon
 .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .panel-head h2 { margin: 0; }
 
-#map { height: 220px; border-radius: 8px; border: 1px solid var(--border); }
+#map { height: 260px; border-radius: 8px; border: 1px solid var(--border); }
 #mapNote { margin: 6px 0 0; }
+#mapNote:empty { display: none; }
+.map-legend { display: flex; align-items: center; gap: 4px 14px; flex-wrap: wrap; margin-top: 6px; color: var(--text-2); }
+.map-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 1.5px solid #fff;
+                   box-shadow: 0 0 0 1px var(--border); }
+.map-legend .dot.unisa { background: var(--s1); }
+.map-legend .dot.cf { background: var(--s2); }
+.map-legend .lg { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.st-elev { font-weight: 400; color: var(--muted); margin-left: 4px; }
 
 .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
 .filters select { width: 100%; min-width: 0; }
