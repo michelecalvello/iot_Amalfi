@@ -561,7 +561,7 @@
     });
     const fan = () => items.forEach(({ m, s, k, n }) => {
       const c = map.latLngToLayerPoint([s.lat, s.lon]), a = -Math.PI / 2 + (2 * Math.PI * k) / n;
-      m.setLatLng(map.layerPointToLatLng(L.point(c.x + 22 * Math.cos(a), c.y + 22 * Math.sin(a))));
+      m.setLatLng(map.layerPointToLatLng(L.point(c.x + 10 * Math.cos(a), c.y + 10 * Math.sin(a))));
     });
     map.on("zoomend", fan);
     map.fitBounds(pts, { padding: [30, 30], maxZoom: 14 });
