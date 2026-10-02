@@ -610,17 +610,12 @@
     };
     $("dFrom").onchange = setRange; $("dTo").onchange = setRange;
     document.querySelectorAll(".presets button").forEach((b) => b.onclick = () => {
-      // l'inizio resta la data del box "Da"; cambia solo la fine
+      if (b.dataset.days === "all") { setFullExtent(); render(); return; }   // tutto il set di dati delle serie selezionate
+      // 7 g / 30 g / 1 anno: l'inizio resta la data del box "Da"; cambia solo la fine
       const a = $("dFrom").value;
       const start = a ? tms(`${a} 00:00`) : tms(state.from);
-      if (b.dataset.days === "all") {
-        const sel = state.selected.length ? state.selected : catalog.series.map((s) => s.series_id);
-        const end = Math.max(...sel.map((x) => tms(seriesById[x].end.slice(0, 16).replace("T", " "))));
-        state.to = tstr(Math.max(Math.ceil(end / DAY) * DAY, start + DAY));
-      } else {
-        state.to = tstr(start + +b.dataset.days * DAY);
-      }
       state.from = tstr(start);
+      state.to = tstr(start + +b.dataset.days * DAY);
       render();
     });
     $("resSel").onchange = (e) => { state.res = e.target.value; render(); };
