@@ -542,16 +542,30 @@
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 18, attribution: "© OpenStreetMap",
     }).addTo(map);
+    // stazioni con le stesse coordinate (S1–S5): disposte a ventaglio attorno al punto reale,
+    // con scarto fisso in pixel (indicativo, solo per renderle selezionabili)
+    const groups = {};
+    withXY.forEach((s) => (groups[`${s.lat},${s.lon}`] ||= []).push(s));
+    const items = [];
     const pts = withXY.map((s) => {
+      const grp = groups[`${s.lat},${s.lon}`].slice().sort((x, y) => x.station_id.localeCompare(y.station_id));
+      const spread = grp.length > 1;
       const m = L.circleMarker([s.lat, s.lon], {
         radius: isCF(s) ? 7 : 8, weight: 2, color: "#ffffff",
         fillColor: isCF(s) ? css("--s2") : css("--s1"), fillOpacity: 1,
       }).addTo(map);
-      m.bindTooltip(`<b>${s.name}</b><br>${elevLabel(s)}<br><span style="opacity:.75">clic per filtrare le serie</span>`);
+      m.bindTooltip(`<b>${s.name}</b><br>${elevLabel(s)}${spread ? "<br>posizione indicativa (stesse coordinate di " + grp.length + " stazioni)" : ""}<br><span style="opacity:.75">clic per filtrare le serie</span>`);
       m.on("click", () => { state.fStation = s.station_id; $("fStation").value = s.station_id; renderSeriesList(); });
+      if (spread) items.push({ m, s, k: grp.indexOf(s), n: grp.length });
       return [s.lat, s.lon];
     });
+    const fan = () => items.forEach(({ m, s, k, n }) => {
+      const c = map.latLngToLayerPoint([s.lat, s.lon]), a = -Math.PI / 2 + (2 * Math.PI * k) / n;
+      m.setLatLng(map.layerPointToLatLng(L.point(c.x + 22 * Math.cos(a), c.y + 22 * Math.sin(a))));
+    });
+    map.on("zoomend", fan);
     map.fitBounds(pts, { padding: [30, 30], maxZoom: 14 });
+    fan();
   }
 
   // ---------------------------------------------------------------- URL / controlli
