@@ -610,14 +610,17 @@
     };
     $("dFrom").onchange = setRange; $("dTo").onchange = setRange;
     document.querySelectorAll(".presets button").forEach((b) => b.onclick = () => {
-      if (b.dataset.days === "all") { setFullExtent(); }
-      else {
-        // ultimi N giorni dei dati selezionati
+      // l'inizio resta la data del box "Da"; cambia solo la fine
+      const a = $("dFrom").value;
+      const start = a ? tms(`${a} 00:00`) : tms(state.from);
+      if (b.dataset.days === "all") {
         const sel = state.selected.length ? state.selected : catalog.series.map((s) => s.series_id);
         const end = Math.max(...sel.map((x) => tms(seriesById[x].end.slice(0, 16).replace("T", " "))));
-        const e = Math.ceil(end / DAY) * DAY;
-        state.from = tstr(e - +b.dataset.days * DAY); state.to = tstr(e);
+        state.to = tstr(Math.max(Math.ceil(end / DAY) * DAY, start + DAY));
+      } else {
+        state.to = tstr(start + +b.dataset.days * DAY);
       }
+      state.from = tstr(start);
       render();
     });
     $("resSel").onchange = (e) => { state.res = e.target.value; render(); };
