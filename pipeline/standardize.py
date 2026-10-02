@@ -49,7 +49,7 @@ def load_series(s):
     for src in s["sources"]:
         df = read_sheet(src["file"], src["sheet"])
         part = pd.DataFrame({
-            "time": pd.to_datetime(df["Time UTC+1"], errors="coerce").dt.round("min"),
+            "time": pd.to_datetime(df.iloc[:, 1], errors="coerce").dt.round("min"),   # colonna B = 'Time UTC+1' (o 'Time (UTC+1)')
             "value": pd.to_numeric(df[src["column"]], errors="coerce")})
         parts.append(part.dropna())
     d = pd.concat(parts).sort_values("time")
@@ -112,10 +112,16 @@ def aggregate(s, d, rule):
 def fmt_value(x, var):
     return x.round({"vwc": 4, "rain": 2}.get(var, 2))
 
-log = []
+log, processed = [], []
 os.makedirs(os.path.join(OUT_DIR, "data", "agg"), exist_ok=True)
 for s in catalog["series"]:
     if s.get("derived_from"):       # serie derivate (derive_cumulative.py): non hanno file Excel sorgente
+        continue
+    missing = sorted({x["file"] for x in s["sources"] if x["file"] not in paths})
+    if missing:                     # modalità incrementale: serie già elaborate, Excel non presenti in INPUT_DIR
+        if "data" not in s:
+            raise SystemExit(f"{s['series_id']}: file Excel mancanti in INPUT_DIR ({', '.join(missing)}) e serie non ancora elaborata")
+        print(f"{s['series_id']:18s} saltata (Excel non presenti, dati già elaborati)")
         continue
     sid, var = s["series_id"], s["variable"]
     d, n_dup = load_series(s)
@@ -149,6 +155,7 @@ for s in catalog["series"]:
                 a[c] = fmt_value(a[c], var)
         a.to_csv(os.path.join(OUT_DIR, "data", "agg", f"{sid}_{rule}.csv"))
 
+    processed.append(sid)
     counts = d["flag"].value_counts().to_dict()
     s["data"] = {
         "format": "csv: time,value,flag",
@@ -177,7 +184,13 @@ catalog["conventions"]["aggregation_labels"] = (
 catalog["qc_rules"] = {k: v for k, v in rules.items() if not k.startswith("_")}
 with open(CATALOG, "w", encoding="utf-8") as fh:
     json.dump(catalog, fh, ensure_ascii=False, indent=2)
-pd.DataFrame(log).to_csv(os.path.join(OUT_DIR, "data", "qc_log.csv"), index=False)
+_qc_path = os.path.join(OUT_DIR, "data", "qc_log.csv")
+_log = pd.DataFrame(log)
+if os.path.exists(_qc_path):       # modalità incrementale: si conservano le righe delle serie non rielaborate
+    _old = pd.read_csv(_qc_path)
+    _log = pd.concat([_old[~_old["series_id"].isin(processed)], _log], ignore_index=True)
+    _log = _log.sort_values("series_id", kind="stable").reset_index(drop=True)
+_log.to_csv(_qc_path, index=False)
 # allinea series.csv (numero di lacune ricalcolato sulla serie completa)
 _flat_path = os.path.join(OUT_DIR, "series.csv")
 if os.path.exists(_flat_path):

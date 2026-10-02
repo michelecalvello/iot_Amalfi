@@ -15,6 +15,10 @@ python pipeline/standardize.py      # data/ + arricchisce catalog.json
 python pipeline/derive_cumulative.py  # serie derivate: pioggia cumulata dal 1 gennaio
 ```
 
+Modalità incrementale: `build_catalog.py` e `standardize.py` aggiornano solo i file Excel presenti in `INPUT_DIR`
+(il resto del catalogo e dei dati resta com'è; `REBUILD=1` per ripartire da zero con tutti i file).
+Per aggiungere un anno a una serie esistente servono tutti i suoi file Excel.
+
 Per aggiungere uno strumento: stazione in `STATIONS`, strumento in `INSTRUMENTS`
 (con `file_pattern`), regola in `classify()` dentro `pipeline/build_catalog.py`; eventuali
 regole QC in `pipeline/qc_rules.json`. Poi rieseguire i due script.
@@ -50,7 +54,8 @@ data/qc_log.csv         elenco dei valori segnalati e regola applicata
 
 ## Fonti dei dati
 
-- Stazione S3 (sensori METER, idrometro Arantec) e pluviometro Arantec: Università di Salerno.
+- Stazione S3 (sensori METER, idrometro Arantec), stazioni S1, S2, S4, S5 (sensori Aranet di umidità del suolo, 1 minuto)
+  e pluviometro Arantec: Università di Salerno. S1, S2, S4, S5 sono nei pressi di S3 e hanno le sue stesse coordinate.
 - Pluviometri 21753 (Amalfi), 51667 (Amalfi-Pogerola), 51663 (Scala-S.Caterina), 21767 (Agerola)
   e 36428 (Agerola METEO): Centro Funzionale Multirischi della Protezione Civile – Regione Campania.
 

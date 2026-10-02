@@ -8,12 +8,12 @@
   // ---------------------------------------------------------------- costanti
   const MAX_SERIES = 12;
   const DAY = 86400000;
-  const VAR_ORDER = ["rain", "rain_cum", "stage", "vwc", "psi", "t_soil"];
+  const VAR_ORDER = ["rain", "rain_cum", "stage", "vwc", "sm", "psi", "t_soil"];
   const PANEL_WEIGHT = { rain: 0.6 };
   const AUTO_RES = (spanDays) => (spanDays > 90 ? "1d" : spanDays > 4 ? "1h" : "raw");
   const RAW_MAX_DAYS = 62;
   const RES_LABEL = { raw: "dato originale", "1h": "oraria", "1d": "giornaliera" };
-  const SHORT = { rain: "Pioggia", rain_cum: "Pioggia cumulata", stage: "Livello idrometrico", vwc: "Contenuto d'acqua",
+  const SHORT = { rain: "Pioggia", rain_cum: "Pioggia cumulata", stage: "Livello idrometrico", vwc: "Contenuto d'acqua", sm: "Umidità suolo (Aranet)",
                   psi: "Potenziale matriciale", t_soil: "Temperatura suolo" };
   const UNIT = (u) => u.replace("m3/m3", "m³/m³");
   const DEFAULT = {
@@ -518,7 +518,7 @@
         <dt>Stazione</dt><dd>${st.name}${st.external_code ? ` · codice ${st.external_code}` : ""}</dd>
         <dt>Posizione</dt><dd>${st.lat != null ? `${st.lat.toFixed(5)}, ${st.lon.toFixed(5)}` : "n.d."} · ${elevLabel(st)}</dd>
         <dt>Gestore</dt><dd>${st.owner || "–"}</dd>
-        <dt>Sensore</dt><dd>${s.sensor_model || "–"}${s.logger_port ? ` · porta ${s.logger_port}` : ""}</dd>
+        <dt>Sensore</dt><dd>${s.sensor_model || "–"}${s.sensor_serial ? ` · matr. ${s.sensor_serial}` : ""}${s.logger_port ? ` · porta ${s.logger_port}` : ""}</dd>
         <dt>Grandezza</dt><dd>${catalog.variables[s.variable].label_it} [${s.unit}]</dd>
         <dt>Passo</dt><dd>${s.step_min} min</dd>
         <dt>Periodo</dt><dd>${s.start.slice(0, 16).replace("T", " ")} → ${s.end.slice(0, 16).replace("T", " ")} (UTC+1)</dd>
