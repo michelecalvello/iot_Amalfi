@@ -21,6 +21,11 @@
     "_doc": "Picco isolato: scarto da entrambi i valori adiacenti > threshold, con i due adiacenti entro neighbor_tolerance tra loro -> flag 1. Le piene reali (salita/discesa continua) non vengono segnalate.",
     "AMF_S3_STAGE": {"threshold": 20.0, "neighbor_tolerance": 5.0}
   },
+  "cumulative": {
+    "_doc": "Pioggia cumulata dal 1 gennaio (derive_cumulative.py): i buchi tra registrazioni consecutive piu' lunghi di gap_min_minutes (e quelli dall'inizio dell'anno al primo dato) contano come tempo mancante; quando il tempo mancante cumulato nell'anno supera missing_hours_threshold la cumulata e' sottostimata -> flag 1 (tratteggio nel portale).",
+    "gap_min_minutes": 60,
+    "missing_hours_threshold": 24
+  },
   "windows": [
     {"series": ["AMF_S3_PSI_030"], "from": "2023-11-09 12:45", "to": "2023-11-09 13:10", "flag": 2,
      "reason": "Transitorio di installazione TEROS 21"},

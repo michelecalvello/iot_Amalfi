@@ -12,11 +12,22 @@ Riferimento temporale unico: **UTC+1** (ora solare, senza ora legale).
 export INPUT_DIR=<cartella con i file Excel>   OUT_DIR=.
 python pipeline/build_catalog.py    # catalog.json + series.csv
 python pipeline/standardize.py      # data/ + arricchisce catalog.json
+python pipeline/derive_cumulative.py  # serie derivate: pioggia cumulata dal 1 gennaio
 ```
 
 Per aggiungere uno strumento: stazione in `STATIONS`, strumento in `INSTRUMENTS`
 (con `file_pattern`), regola in `classify()` dentro `pipeline/build_catalog.py`; eventuali
 regole QC in `pipeline/qc_rules.json`. Poi rieseguire i due script.
+
+### Pioggia cumulata dal 1 gennaio
+
+`derive_cumulative.py` crea, per ogni pluviometro, la serie `<STAZIONE>_RAINCUM` (variabile `rain_cum`, mm)
+con la pioggia cumulata dal 1 gennaio ore 00:00, azzerata a ogni anno. Calcolo sui soli dati con flag < 2.
+- Il dato delle 00:00 del 1 gennaio chiude l'anno precedente (ogni dato di pioggia è riferito all'intervallo che termina al suo timestamp).
+- Aggregati orari/giornalieri: `value` = cumulata a fine intervallo (etichetta = inizio intervallo); colonne `time,value,n,coverage,flag`.
+- `flag` 1 = cumulata sottostimata per dati mancanti (tempo mancante nell'anno > `missing_hours_threshold`, soglie in `qc_rules.json` → `cumulative`); nel portale è tratteggiata.
+- Le serie derivate hanno `derived_from` e `cumulative_years` (totali annui e ore mancanti) nel catalogo.
+- Va rieseguito dopo ogni modifica ai dati di pioggia o alle regole QC (`build_catalog.py` rigenera il catalogo senza le derivate).
 
 ## Struttura
 

@@ -1,13 +1,14 @@
 {
-  "catalog_version": "0.3",
-  "generated": "2026-10-01T15:29:18+01:00",
+  "catalog_version": "0.4",
+  "generated": "2026-10-02T14:26:11+01:00",
   "conventions": {
     "time_reference": "UTC+1 (ora solare italiana / CET, senza ora legale) per tutte le misure. Timestamp in ISO 8601 con offset '+01:00'. Sorgente: colonna 'Time UTC+1' dei file Excel, arrotondata al minuto. La colonna 'Time' (ora locale con ora legale) non è usata.",
     "series_id": "<STAZIONE>_<GRANDEZZA>[_<PROFONDITÀ cm, 3 cifre>]",
     "depth_m": "Profondità sotto il piano campagna, positiva verso il basso, in metri.",
     "coordinates": "WGS84 (EPSG:4326), gradi decimali.",
     "data_format": "File CSV con intestazione. Dati originali: time,value,flag (un file per serie e per anno). Aggregati: time,value,[min],max,n,coverage. time = 'YYYY-MM-DD HH:MM' in UTC+1. flag: 0 valido, 1 sospetto, 2 errato. Aggregati calcolati sui soli flag < 2.",
-    "aggregation_labels": "Grandezze istantanee: etichetta = inizio intervallo. Pioggia: ogni dato è riferito all'intervallo che termina al timestamp; l'etichetta oraria/giornaliera indica l'inizio del periodo di cumulo (es. giorno '2024-10-01' = pioggia da 2024-10-01 00:00 esclusa a 2024-10-02 00:00 inclusa)."
+    "aggregation_labels": "Grandezze istantanee: etichetta = inizio intervallo. Pioggia: ogni dato è riferito all'intervallo che termina al timestamp; l'etichetta oraria/giornaliera indica l'inizio del periodo di cumulo (es. giorno '2024-10-01' = pioggia da 2024-10-01 00:00 esclusa a 2024-10-02 00:00 inclusa).",
+    "derived_series": "Serie con 'derived_from' sono calcolate da altre serie (pipeline/derive_cumulative.py). Pioggia cumulata (variabile rain_cum): cumulo dal 1 gennaio ore 00:00; il dato di pioggia delle 00:00 del 1 gennaio chiude l'anno precedente. Aggregati (data/agg): value = cumulata a fine intervallo, etichetta = inizio intervallo; colonne time,value,n,coverage,flag. flag 1 = cumulata sottostimata per dati mancanti (soglia in qc_rules.json -> cumulative)."
   },
   "variables": {
     "rain": {
@@ -46,6 +47,14 @@
       "unit": "cm",
       "aggregation": "mean",
       "plot": "line"
+    },
+    "rain_cum": {
+      "label_it": "Pioggia cumulata dal 1° gennaio",
+      "label_en": "Year-to-date rainfall",
+      "unit": "mm",
+      "aggregation": "last",
+      "plot": "line",
+      "notes": "Pioggia cumulata dal 1 gennaio ore 00:00 dell'anno corrente (si azzera ogni anno). Tratteggiata dove i dati mancanti rendono la cumulata sottostimata."
     }
   },
   "stations": [
@@ -296,6 +305,76 @@
         "n_total": 182280,
         "n_valid": 182280,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_ARA_RAINCUM",
+      "instrument_id": "AMF_ARA_RAIN",
+      "station_id": "AMF_ARA",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Amalfi – Pluviometro Arantec",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 5.0,
+      "start": "2024-04-02T11:30+01:00",
+      "end": "2025-12-31T23:45+01:00",
+      "n_values": 182280,
+      "min": 0.0,
+      "max": 1582.7,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-04-12T13:00+01:00",
+          "to": "2024-04-15T09:55+01:00",
+          "hours": 68.9
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da AMF_ARA_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1138.9 mm (incompleto); 2025: 1582.7 mm.",
+        "2024: circa 2333 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-04-02 11:30 la cumulata è sottostimata (flag 1, tratteggio). Totale 1138.9 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "AMF_ARA_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1138.9,
+          "n": 77373,
+          "first": "2024-04-02 11:30",
+          "last": "2025-01-01 00:00",
+          "missing_hours": 2333.1,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1582.7,
+          "n": 104907,
+          "first": "2025-01-01 00:05",
+          "last": "2025-12-31 23:45",
+          "missing_hours": 17.4,
+          "complete": true
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_ARA_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_ARA_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/AMF_ARA_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 182280,
+        "n_valid": 104907,
+        "n_suspect": 77373,
         "n_bad": 0,
         "duplicates_removed": 0
       }
@@ -1032,6 +1111,91 @@
       }
     },
     {
+      "series_id": "CF_21753_RAINCUM",
+      "instrument_id": "CF_21753_RAIN",
+      "station_id": "CF_21753",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Amalfi (CF 21753)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100581,
+      "min": 0.0,
+      "max": 1160.2,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_21753_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1148.2 mm (incompleto); 2025: 1160.2 mm.",
+        "2024: circa 768 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-03-21 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1148.2 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "CF_21753_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1148.2,
+          "n": 48092,
+          "first": "2024-01-01 00:20",
+          "last": "2024-12-31 23:50",
+          "missing_hours": 767.7,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1160.2,
+          "n": 52489,
+          "first": "2025-01-01 00:10",
+          "last": "2025-12-31 23:50",
+          "missing_hours": 11.5,
+          "complete": true
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_21753_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_21753_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/CF_21753_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100581,
+        "n_valid": 63743,
+        "n_suspect": 36838,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
       "series_id": "CF_21767_RAIN",
       "instrument_id": "CF_21767_RAIN",
       "station_id": "CF_21767",
@@ -1113,6 +1277,97 @@
       }
     },
     {
+      "series_id": "CF_21767_RAINCUM",
+      "instrument_id": "CF_21767_RAIN",
+      "station_id": "CF_21767",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Agerola (CF 21767)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 94001,
+      "min": 0.0,
+      "max": 1247.4,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        },
+        {
+          "from": "2024-12-31T23:50+01:00",
+          "to": "2025-02-16T00:10+01:00",
+          "hours": 1104.3
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_21767_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1247.4 mm (incompleto); 2025: 1065.2 mm (incompleto).",
+        "2024: circa 768 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-03-21 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1247.4 mm = valore minimo.",
+        "2025: circa 1104 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2025-02-16 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1065.2 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "CF_21767_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1247.4,
+          "n": 48066,
+          "first": "2024-01-01 00:20",
+          "last": "2024-12-31 23:50",
+          "missing_hours": 767.8,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1065.2,
+          "n": 45935,
+          "first": "2025-02-16 00:10",
+          "last": "2025-12-31 23:50",
+          "missing_hours": 1104.0,
+          "complete": false
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_21767_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_21767_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/CF_21767_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 94001,
+        "n_valid": 11254,
+        "n_suspect": 82747,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
       "series_id": "CF_36428_RAIN",
       "instrument_id": "CF_36428_RAIN",
       "station_id": "CF_36428",
@@ -1183,6 +1438,91 @@
         "n_total": 100651,
         "n_valid": 100651,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_36428_RAINCUM",
+      "instrument_id": "CF_36428_RAIN",
+      "station_id": "CF_36428",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Agerola METEO (CF 36428)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 1713.0,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_36428_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1713.0 mm (incompleto); 2025: 1437.2 mm.",
+        "2024: circa 768 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-03-21 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1713.0 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "CF_36428_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1713.0,
+          "n": 48092,
+          "first": "2024-01-01 00:20",
+          "last": "2024-12-31 23:50",
+          "missing_hours": 767.7,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1437.2,
+          "n": 52559,
+          "first": "2025-01-01 00:10",
+          "last": "2025-12-31 23:50",
+          "missing_hours": 0.0,
+          "complete": true
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_36428_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_36428_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/CF_36428_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 63813,
+        "n_suspect": 36838,
         "n_bad": 0,
         "duplicates_removed": 0
       }
@@ -1263,6 +1603,91 @@
       }
     },
     {
+      "series_id": "CF_51663_RAINCUM",
+      "instrument_id": "CF_51663_RAIN",
+      "station_id": "CF_51663",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Scala-S.Caterina (CF 51663)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 1726.6,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_51663_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1726.6 mm (incompleto); 2025: 1480.5 mm.",
+        "2024: circa 768 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-03-21 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1726.6 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "CF_51663_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1726.6,
+          "n": 48092,
+          "first": "2024-01-01 00:20",
+          "last": "2024-12-31 23:50",
+          "missing_hours": 767.7,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1480.5,
+          "n": 52559,
+          "first": "2025-01-01 00:10",
+          "last": "2025-12-31 23:50",
+          "missing_hours": 0.0,
+          "complete": true
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_51663_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_51663_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/CF_51663_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 63813,
+        "n_suspect": 36838,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
       "series_id": "CF_51667_RAIN",
       "instrument_id": "CF_51667_RAIN",
       "station_id": "CF_51667",
@@ -1334,6 +1759,91 @@
         "n_total": 100651,
         "n_valid": 100651,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_51667_RAINCUM",
+      "instrument_id": "CF_51667_RAIN",
+      "station_id": "CF_51667",
+      "variable": "rain_cum",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata dal 1° gennaio – Amalfi-Pogerola (CF 51667)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 1417.2,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_51667_RAIN: pioggia cumulata dal 1 gennaio ore 00:00 (si azzera ogni anno), calcolata sui dati con flag < 2. Il dato delle 00:00 del 1 gennaio chiude l'anno precedente.",
+        "Totali annui: 2024: 1417.2 mm (incompleto); 2025: 1371.0 mm.",
+        "2024: circa 768 h di dati mancanti nell'anno (prima del primo dato o in lacune > 60 min); dal 2024-03-21 00:10 la cumulata è sottostimata (flag 1, tratteggio). Totale 1417.2 mm = valore minimo."
+      ],
+      "sources": [],
+      "derived_from": "CF_51667_RAIN",
+      "cumulative_years": [
+        {
+          "year": 2024,
+          "total_mm": 1417.2,
+          "n": 48092,
+          "first": "2024-01-01 00:20",
+          "last": "2024-12-31 23:50",
+          "missing_hours": 767.7,
+          "complete": false
+        },
+        {
+          "year": 2025,
+          "total_mm": 1371.0,
+          "n": 52559,
+          "first": "2025-01-01 00:10",
+          "last": "2025-12-31 23:50",
+          "missing_hours": 0.0,
+          "complete": true
+        }
+      ],
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_51667_RAINCUM/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_51667_RAINCUM_1h.csv",
+        "agg_1d": "data/agg/CF_51667_RAINCUM_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 63813,
+        "n_suspect": 36838,
         "n_bad": 0,
         "duplicates_removed": 0
       }

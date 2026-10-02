@@ -115,6 +115,8 @@ def fmt_value(x, var):
 log = []
 os.makedirs(os.path.join(OUT_DIR, "data", "agg"), exist_ok=True)
 for s in catalog["series"]:
+    if s.get("derived_from"):       # serie derivate (derive_cumulative.py): non hanno file Excel sorgente
+        continue
     sid, var = s["series_id"], s["variable"]
     d, n_dup = load_series(s)
     if n_dup:
