@@ -27,6 +27,10 @@
     "gap_min_minutes": 60,
     "missing_hours_threshold": 24
   },
+  "rolling_24h": {
+    "_doc": "Pioggia cumulata sulle ultime 24 h (derive_rolling24h.py): quando nella finestra (t-24h, t] mancano piu' di missing_minutes_threshold minuti di dati (lacune, dati errati scartati, prime 24 h della serie) il valore e' sottostimato -> flag 1 (tratteggio nel portale).",
+    "missing_minutes_threshold": 60
+  },
   "windows": [
     {"series": ["AMF_S3_PSI_030"], "from": "2023-11-09 12:45", "to": "2023-11-09 13:10", "flag": 2,
      "reason": "Transitorio di installazione TEROS 21"},

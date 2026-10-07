@@ -46,8 +46,8 @@ rules = json.load(open(RULES, encoding="utf-8"))["cumulative"]
 GAP_MIN, MISS_THR_H = rules["gap_min_minutes"], rules["missing_hours_threshold"]
 stations = {s["station_id"]: s for s in catalog["stations"]}
 
-# idempotenza: via le derivate precedenti
-catalog["series"] = [s for s in catalog["series"] if not s.get("derived_from")]
+# idempotenza: via le serie RAINCUM precedenti (le altre derivate, es. RAIN24H, restano)
+catalog["series"] = [s for s in catalog["series"] if s.get("variable") != "rain_cum"]
 rain_series = [s for s in catalog["series"] if s["variable"] == "rain"]
 
 

@@ -1,6 +1,6 @@
 {
-  "catalog_version": "0.4",
-  "generated": "2026-10-02T16:40:11+01:00",
+  "catalog_version": "0.5",
+  "generated": "2026-10-07T11:14:43+01:00",
   "conventions": {
     "time_reference": "UTC+1 (ora solare italiana / CET, senza ora legale) per tutte le misure. Timestamp in ISO 8601 con offset '+01:00'. Sorgente: colonna 'Time UTC+1' dei file Excel, arrotondata al minuto. La colonna 'Time' (ora locale con ora legale) non è usata.",
     "series_id": "<STAZIONE>_<GRANDEZZA>[_<PROFONDITÀ cm, 3 cifre>]",
@@ -8,7 +8,7 @@
     "coordinates": "WGS84 (EPSG:4326), gradi decimali.",
     "data_format": "File CSV con intestazione. Dati originali: time,value,flag (un file per serie e per anno). Aggregati: time,value,[min],max,n,coverage. time = 'YYYY-MM-DD HH:MM' in UTC+1. flag: 0 valido, 1 sospetto, 2 errato. Aggregati calcolati sui soli flag < 2.",
     "aggregation_labels": "Grandezze istantanee: etichetta = inizio intervallo. Pioggia: ogni dato è riferito all'intervallo che termina al timestamp; l'etichetta oraria/giornaliera indica l'inizio del periodo di cumulo (es. giorno '2024-10-01' = pioggia da 2024-10-01 00:00 esclusa a 2024-10-02 00:00 inclusa).",
-    "derived_series": "Serie con 'derived_from' sono calcolate da altre serie (pipeline/derive_cumulative.py). Pioggia cumulata (variabile rain_cum): cumulo dal 1 gennaio ore 00:00; il dato di pioggia delle 00:00 del 1 gennaio chiude l'anno precedente. Aggregati (data/agg): value = cumulata a fine intervallo, etichetta = inizio intervallo; colonne time,value,n,coverage,flag. flag 1 = cumulata sottostimata per dati mancanti (soglia in qc_rules.json -> cumulative)."
+    "derived_series": "Serie con 'derived_from' sono calcolate da altre serie (pipeline/derive_cumulative.py). Pioggia cumulata (variabile rain_cum): cumulo dal 1 gennaio ore 00:00; il dato di pioggia delle 00:00 del 1 gennaio chiude l'anno precedente. Aggregati (data/agg): value = cumulata a fine intervallo, etichetta = inizio intervallo; colonne time,value,n,coverage,flag. flag 1 = cumulata sottostimata per dati mancanti (soglia in qc_rules.json -> cumulative). Pioggia cumulata 24 h (variabile rain_24h, pipeline/derive_rolling24h.py): pioggia caduta nelle 24 h che terminano al timestamp, alla risoluzione originale del pluviometro; aggregati (data/agg): value = valore a fine intervallo, max = massimo nell'intervallo, etichetta = inizio intervallo; flag 1 = valore sottostimato per dati mancanti nella finestra (soglia in qc_rules.json -> rolling_24h)."
   },
   "variables": {
     "rain": {
@@ -63,6 +63,14 @@
       "aggregation": "mean",
       "plot": "line",
       "notes": "Indice relativo del sensore Aranet (scala circa 0-90), non un contenuto d'acqua volumetrico calibrato: non confrontabile in valore assoluto con i TEROS 10 (m3/m3). Unità provvisoria."
+    },
+    "rain_24h": {
+      "label_it": "Pioggia cumulata 24 h",
+      "label_en": "24-hour rolling rainfall",
+      "unit": "mm",
+      "aggregation": "last",
+      "plot": "line",
+      "notes": "Pioggia caduta nelle 24 ore che terminano al timestamp (finestra mobile), alla risoluzione originale del pluviometro. Tratteggiata dove i dati mancanti rendono il valore sottostimato."
     }
   },
   "stations": [
@@ -457,6 +465,56 @@
         "n_total": 182280,
         "n_valid": 182280,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "AMF_ARA_RAIN24H",
+      "instrument_id": "AMF_ARA_RAIN",
+      "station_id": "AMF_ARA",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Amalfi – Pluviometro Arantec",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 5.0,
+      "start": "2024-04-02T11:30+01:00",
+      "end": "2025-12-31T23:45+01:00",
+      "n_values": 182280,
+      "min": 0.0,
+      "max": 108.7,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-04-12T13:00+01:00",
+          "to": "2024-04-15T09:55+01:00",
+          "hours": 68.9
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da AMF_ARA_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (5 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 108.7 mm, in data 2024-10-19 07:30.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 2878 dati su 182280 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "AMF_ARA_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/AMF_ARA_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/AMF_ARA_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/AMF_ARA_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 182280,
+        "n_valid": 179402,
+        "n_suspect": 2878,
         "n_bad": 0,
         "duplicates_removed": 0
       }
@@ -2148,6 +2206,71 @@
       }
     },
     {
+      "series_id": "CF_21753_RAIN24H",
+      "instrument_id": "CF_21753_RAIN",
+      "station_id": "CF_21753",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Amalfi (CF 21753)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100581,
+      "min": 0.0,
+      "max": 80.8,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_21753_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (10 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 80.8 mm, in data 2024-10-19 07:30.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 1370 dati su 100581 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "CF_21753_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_21753_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_21753_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/CF_21753_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100581,
+        "n_valid": 99211,
+        "n_suspect": 1370,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
       "series_id": "CF_21753_RAINCUM",
       "instrument_id": "CF_21753_RAIN",
       "station_id": "CF_21753",
@@ -2309,6 +2432,76 @@
         "n_total": 94001,
         "n_valid": 94001,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_21767_RAIN24H",
+      "instrument_id": "CF_21767_RAIN",
+      "station_id": "CF_21767",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Agerola (CF 21767)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 94001,
+      "min": 0.0,
+      "max": 122.4,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        },
+        {
+          "from": "2024-12-31T23:50+01:00",
+          "to": "2025-02-16T00:10+01:00",
+          "hours": 1104.3
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_21767_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (10 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 122.4 mm, in data 2024-10-19 07:30.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 1370 dati su 94001 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "CF_21767_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_21767_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_21767_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/CF_21767_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 94001,
+        "n_valid": 92631,
+        "n_suspect": 1370,
         "n_bad": 0,
         "duplicates_removed": 0
       }
@@ -2480,6 +2673,71 @@
       }
     },
     {
+      "series_id": "CF_36428_RAIN24H",
+      "instrument_id": "CF_36428_RAIN",
+      "station_id": "CF_36428",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Agerola METEO (CF 36428)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 116.6,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_36428_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (10 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 116.6 mm, in data 2024-10-19 07:30.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 1233 dati su 100651 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "CF_36428_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_36428_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_36428_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/CF_36428_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 99418,
+        "n_suspect": 1233,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
       "series_id": "CF_36428_RAINCUM",
       "instrument_id": "CF_36428_RAIN",
       "station_id": "CF_36428",
@@ -2635,6 +2893,71 @@
         "n_total": 100651,
         "n_valid": 100651,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_51663_RAIN24H",
+      "instrument_id": "CF_51663_RAIN",
+      "station_id": "CF_51663",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Scala-S.Caterina (CF 51663)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 135.6,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_51663_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (10 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 135.6 mm, in data 2024-11-22 14:00.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 1233 dati su 100651 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "CF_51663_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_51663_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_51663_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/CF_51663_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 99418,
+        "n_suspect": 1233,
         "n_bad": 0,
         "duplicates_removed": 0
       }
@@ -2796,6 +3119,71 @@
         "n_total": 100651,
         "n_valid": 100651,
         "n_suspect": 0,
+        "n_bad": 0,
+        "duplicates_removed": 0
+      }
+    },
+    {
+      "series_id": "CF_51667_RAIN24H",
+      "instrument_id": "CF_51667_RAIN",
+      "station_id": "CF_51667",
+      "variable": "rain_24h",
+      "depth_m": null,
+      "sensor_model": null,
+      "logger_port": null,
+      "label": "Pioggia cumulata 24 h – Amalfi-Pogerola (CF 51667)",
+      "unit": "mm",
+      "aggregation": "last",
+      "step_min": 10.0,
+      "start": "2024-01-01T00:20+01:00",
+      "end": "2025-12-31T23:50+01:00",
+      "n_values": 100651,
+      "min": 0.0,
+      "max": 92.5,
+      "status": "active",
+      "gaps_over_24h": [
+        {
+          "from": "2024-03-19T07:50+01:00",
+          "to": "2024-03-21T00:10+01:00",
+          "hours": 40.3
+        },
+        {
+          "from": "2024-06-05T16:20+01:00",
+          "to": "2024-06-09T00:10+01:00",
+          "hours": 79.8
+        },
+        {
+          "from": "2024-06-10T13:50+01:00",
+          "to": "2024-07-04T00:10+01:00",
+          "hours": 562.3
+        },
+        {
+          "from": "2024-07-05T08:00+01:00",
+          "to": "2024-07-08T00:00+01:00",
+          "hours": 64.0
+        }
+      ],
+      "qc_notes": [
+        "Serie derivata da CF_51667_RAIN: pioggia caduta nelle 24 h che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]), alla risoluzione originale (10 min), calcolata sui dati con flag < 2.",
+        "Massimo 24 h: 92.5 mm, in data 2025-10-26 04:30.",
+        "flag 1 (tratteggio nel portale) = nella finestra mancano più di 60 min di dati (lacune, dati errati scartati, prime 24 h della serie): valore probabilmente sottostimato. 1233 dati su 100651 segnalati."
+      ],
+      "sources": [],
+      "derived_from": "CF_51667_RAIN",
+      "data": {
+        "format": "csv: time,value,flag",
+        "raw": "data/raw/CF_51667_RAIN24H/{year}.csv",
+        "years": [
+          2024,
+          2025
+        ],
+        "agg_1h": "data/agg/CF_51667_RAIN24H_1h.csv",
+        "agg_1d": "data/agg/CF_51667_RAIN24H_1d.csv"
+      },
+      "qc_summary": {
+        "n_total": 100651,
+        "n_valid": 99418,
+        "n_suspect": 1233,
         "n_bad": 0,
         "duplicates_removed": 0
       }

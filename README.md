@@ -13,6 +13,7 @@ export INPUT_DIR=<cartella con i file Excel>   OUT_DIR=.
 python pipeline/build_catalog.py    # catalog.json + series.csv
 python pipeline/standardize.py      # data/ + arricchisce catalog.json
 python pipeline/derive_cumulative.py  # serie derivate: pioggia cumulata dal 1 gennaio
+python pipeline/derive_rolling24h.py  # serie derivate: pioggia cumulata sulle ultime 24 h
 ```
 
 Modalità incrementale: `build_catalog.py` e `standardize.py` aggiornano solo i file Excel presenti in `INPUT_DIR`
@@ -32,6 +33,16 @@ con la pioggia cumulata dal 1 gennaio ore 00:00, azzerata a ogni anno. Calcolo s
 - `flag` 1 = cumulata sottostimata per dati mancanti (tempo mancante nell'anno > `missing_hours_threshold`, soglie in `qc_rules.json` → `cumulative`); nel portale è tratteggiata.
 - Le serie derivate hanno `derived_from` e `cumulative_years` (totali annui e ore mancanti) nel catalogo.
 - Va rieseguito dopo ogni modifica ai dati di pioggia o alle regole QC (`build_catalog.py` rigenera il catalogo senza le derivate).
+
+### Pioggia cumulata sulle ultime 24 ore
+
+`derive_rolling24h.py` crea, per ogni pluviometro, la serie `<STAZIONE>_RAIN24H` (variabile `rain_24h`, mm)
+con la pioggia caduta nelle 24 ore che terminano al timestamp (finestra mobile, intervallo (t-24 h, t]),
+**alla risoluzione originale del pluviometro** (una riga per ogni dato di pioggia valido; passo 5 min per Arantec, 10 min per la rete CF).
+Calcolo sui soli dati con flag < 2.
+- Aggregati orari/giornalieri: `value` = valore a fine intervallo (etichetta = inizio intervallo), `max` = massimo nell'intervallo; colonne `time,value,max,n,coverage,flag`.
+- `flag` 1 = nella finestra mancano più di `missing_minutes_threshold` minuti di dati (lacune, dati errati scartati, prime 24 h della serie): valore sottostimato; nel portale è tratteggiato (soglia in `qc_rules.json` → `rolling_24h`).
+- Va rieseguito dopo ogni modifica ai dati di pioggia (dopo `derive_cumulative.py`; i due script non si sovrascrivono a vicenda).
 
 ## Struttura
 
@@ -62,7 +73,7 @@ data/qc_log.csv         elenco dei valori segnalati e regola applicata
 ## Portale web
 
 `index.html` + `assets/` — pagina statica (GitHub Pages), nessun backend.
-- Selezione delle serie per stazione e grandezza, mappa delle stazioni, metadati (ⓘ).
+- Selezione fino a **20 serie** contemporaneamente per stazione e grandezza, mappa delle stazioni, metadati (ⓘ).
 - Grafico Plotly con asse del tempo unico: modalità **Pannelli** (un pannello per grandezza)
   o **Assi multipli** (un solo grafico, un asse Y per grandezza, pioggia come ietogramma rovesciato).
 - Opzione *Piogge in pannelli separati*: un pannello per pluviometro, con scala comune.
